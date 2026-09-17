@@ -9,9 +9,12 @@ import { ThemedView } from '@/components/themed-view';
 import { ChartColors, Spacing } from '@/constants/theme';
 import {
   filterExpensesByRange,
+  formatPeriodLabel,
   getCategoryBreakdown,
   getCumulativeSpendSeries,
   getPeriodRange,
+  isCurrentOrFuturePeriod,
+  shiftReferenceDate,
   type ReportPeriod,
 } from '@/domain/reports';
 import { useActiveProject } from '@/hooks/useActiveProject';
@@ -39,8 +42,16 @@ export default function ReportsScreen() {
   const { summary } = useBudgetSummary(project?.id);
 
   const [period, setPeriod] = useState<ReportPeriod>('month');
+  const [referenceDate, setReferenceDate] = useState(() => new Date());
 
-  const range = useMemo(() => getPeriodRange(period, new Date()), [period]);
+  function handleSelectPeriod(nextPeriod: ReportPeriod) {
+    setPeriod(nextPeriod);
+    setReferenceDate(new Date());
+  }
+
+  const range = useMemo(() => getPeriodRange(period, referenceDate), [period, referenceDate]);
+  const periodLabel = useMemo(() => formatPeriodLabel(period, range), [period, range]);
+  const canGoToNextPeriod = !isCurrentOrFuturePeriod(period, referenceDate);
   const expensesInPeriod = useMemo(() => filterExpensesByRange(expenses, range), [expenses, range]);
   const totalInPeriod = useMemo(
     () => expensesInPeriod.reduce((sum, expense) => sum + expense.amount, 0),
@@ -70,6 +81,10 @@ export default function ReportsScreen() {
   const totalBudget = fromCents(summary?.totalBudget ?? 0);
   const cumulativeData = cumulativeSeries.map((point) => ({ value: fromCents(point.cumulative) }));
   const budgetLineData = cumulativeSeries.map(() => ({ value: totalBudget }));
+  // El eje Y se calcula solo a partir de `data` (gasto acumulado): si no le
+  // pasamos `maxValue` explícito, la línea de presupuesto (casi siempre más
+  // alta que el gasto acumulado) queda fuera del área visible y no se ve.
+  const lineChartMaxValue = Math.max(totalBudget, ...cumulativeData.map((point) => point.value), 1);
 
   return (
     <ThemedView style={styles.container}>
@@ -81,7 +96,7 @@ export default function ReportsScreen() {
             {PERIOD_OPTIONS.map((option) => (
               <Pressable
                 key={option.value}
-                onPress={() => setPeriod(option.value)}
+                onPress={() => handleSelectPeriod(option.value)}
                 style={[
                   styles.periodOption,
                   { backgroundColor: theme.backgroundElement },
@@ -92,6 +107,34 @@ export default function ReportsScreen() {
               </Pressable>
             ))}
           </View>
+
+          {period !== 'all' && (
+            <View style={styles.periodNav}>
+              <Pressable
+                onPress={() => setReferenceDate(shiftReferenceDate(period, referenceDate, -1))}
+                hitSlop={8}
+                style={styles.periodNavButton}
+              >
+                <ThemedText type="linkPrimary">‹</ThemedText>
+              </Pressable>
+              <ThemedText type="small" style={styles.periodNavLabel}>
+                {periodLabel}
+              </ThemedText>
+              <Pressable
+                onPress={() => setReferenceDate(shiftReferenceDate(period, referenceDate, 1))}
+                disabled={!canGoToNextPeriod}
+                hitSlop={8}
+                style={styles.periodNavButton}
+              >
+                <ThemedText
+                  type="linkPrimary"
+                  themeColor={canGoToNextPeriod ? undefined : 'textSecondary'}
+                >
+                  ›
+                </ThemedText>
+              </Pressable>
+            </View>
+          )}
 
           <BudgetSummaryCard
             label={`Gastado (${PERIOD_OPTIONS.find((option) => option.value === period)?.label})`}
@@ -157,6 +200,8 @@ export default function ReportsScreen() {
                     spacing={Math.max(16, 220 / Math.max(cumulativeSeries.length, 1))}
                     initialSpacing={Spacing.two}
                     height={160}
+                    maxValue={lineChartMaxValue}
+                    noOfSections={4}
                   />
                 </ScrollView>
                 <View style={styles.legendRow}>
@@ -200,6 +245,20 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.two,
     paddingVertical: Spacing.two,
     alignItems: 'center',
+  },
+  periodNav: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.three,
+  },
+  periodNavButton: {
+    paddingHorizontal: Spacing.two,
+    paddingVertical: Spacing.one,
+  },
+  periodNavLabel: {
+    minWidth: 140,
+    textAlign: 'center',
   },
   section: {
     gap: Spacing.two,

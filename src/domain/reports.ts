@@ -1,5 +1,5 @@
 import type { Category, Expense } from '@/domain/types';
-import { toISODateString } from '@/utils/date';
+import { fromISODateString, toISODateString } from '@/utils/date';
 
 export type ReportPeriod = 'week' | 'month' | 'all';
 
@@ -33,6 +33,57 @@ export function getPeriodRange(period: ReportPeriod, referenceDate: Date): Perio
   const firstDay = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), 1);
   const lastDay = new Date(referenceDate.getFullYear(), referenceDate.getMonth() + 1, 0);
   return { start: toISODateString(firstDay), end: toISODateString(lastDay) };
+}
+
+// Mueve la fecha de referencia una semana/mes hacia adelante (1) o atrás
+// (-1). No aplica para 'all' (no hay períodos que navegar).
+export function shiftReferenceDate(
+  period: ReportPeriod,
+  referenceDate: Date,
+  direction: 1 | -1,
+): Date {
+  const next = new Date(referenceDate);
+  if (period === 'week') {
+    next.setDate(next.getDate() + direction * 7);
+  } else if (period === 'month') {
+    next.setMonth(next.getMonth() + direction);
+  }
+  return next;
+}
+
+// true si el período de `referenceDate` ya incluye hoy (o es futuro), para
+// no dejar avanzar el selector más allá del período actual.
+export function isCurrentOrFuturePeriod(period: ReportPeriod, referenceDate: Date): boolean {
+  if (period === 'all') {
+    return true;
+  }
+  const range = getPeriodRange(period, referenceDate);
+  const todayIso = toISODateString(new Date());
+  return range.end === null || range.end >= todayIso;
+}
+
+// Etiqueta legible del período seleccionado, para mostrar entre las
+// flechas de navegación (ej. "1 – 7 sep 2026" o "Septiembre 2026").
+export function formatPeriodLabel(period: ReportPeriod, range: PeriodRange): string {
+  if (period === 'all' || !range.start || !range.end) {
+    return 'Todo el historial';
+  }
+
+  const start = fromISODateString(range.start);
+  const end = fromISODateString(range.end);
+
+  if (period === 'month') {
+    const label = start.toLocaleDateString('es-CO', { month: 'long', year: 'numeric' });
+    return label.charAt(0).toUpperCase() + label.slice(1);
+  }
+
+  const startLabel = start.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' });
+  const endLabel = end.toLocaleDateString('es-CO', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+  return `${startLabel} – ${endLabel}`;
 }
 
 export function filterExpensesByRange(expenses: Expense[], range: PeriodRange): Expense[] {
