@@ -1,4 +1,8 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
+import * as DocumentPicker from 'expo-document-picker';
+import { File } from 'expo-file-system';
 import { Link, useRouter } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
 import { Alert, FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -14,6 +18,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { toISODateString } from '@/utils/date';
 import { alertUnexpectedError } from '@/utils/errors';
 import { buildBudgetEntriesCsv, shareCsv } from '@/utils/export';
+import { importBudgetEntriesFromCsv, parseBudgetEntriesCsv } from '@/utils/importCsv';
 import { formatAmount } from '@/utils/money';
 
 // Presupuesto total (arriba) + historial completo de movimientos
@@ -22,9 +27,10 @@ import { formatAmount } from '@/utils/money';
 export default function BudgetScreen() {
   const router = useRouter();
   const theme = useTheme();
+  const db = useSQLiteContext();
   const { project } = useActiveProject();
-  const { entries, loading } = useBudgetEntries(project?.id);
-  const { summary } = useBudgetSummary(project?.id);
+  const { entries, loading, refetch: refetchEntries } = useBudgetEntries(project?.id);
+  const { summary, refetch: refetchSummary } = useBudgetSummary(project?.id);
 
   async function handleExport() {
     if (entries.length === 0) {
@@ -37,6 +43,65 @@ export default function BudgetScreen() {
     } catch (error) {
       alertUnexpectedError('No se pudo exportar', error);
     }
+  }
+
+  async function handleImport() {
+    if (!project) {
+      return;
+    }
+
+    let content: string;
+    try {
+      const picked = await DocumentPicker.getDocumentAsync({
+        type: '*/*',
+        copyToCacheDirectory: true,
+      });
+      if (picked.canceled || !picked.assets?.[0]) {
+        return;
+      }
+      content = await new File(picked.assets[0].uri).text();
+    } catch (error) {
+      alertUnexpectedError('No se pudo leer el archivo', error);
+      return;
+    }
+
+    const { rows, headerOk } = parseBudgetEntriesCsv(content);
+    if (!headerOk) {
+      Alert.alert(
+        'Formato no reconocido',
+        'El archivo debe tener las columnas Fecha, Tipo, Monto, Nota — el mismo formato que genera "Exportar".',
+      );
+      return;
+    }
+    if (rows.length === 0) {
+      Alert.alert('Archivo vacío', 'No se encontraron filas para importar.');
+      return;
+    }
+
+    Alert.alert(
+      'Importar presupuesto',
+      `Se importarán ${rows.length} movimiento(s). Si ya tienes datos cargados, esto puede crear duplicados. ¿Continuar?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Importar',
+          onPress: async () => {
+            try {
+              const result = await importBudgetEntriesFromCsv(db, project.id, rows);
+              refetchEntries();
+              refetchSummary();
+              const message =
+                result.skipped > 0
+                  ? `Se importaron ${result.imported} movimiento(s). Se omitieron ${result.skipped} fila(s):\n${result.skipReasons.slice(0, 5).join('\n')}`
+                  : `Se importaron ${result.imported} movimiento(s) correctamente.`;
+              Alert.alert('Importación completa', message);
+            } catch (error) {
+              alertUnexpectedError('No se pudo importar', error);
+            }
+          },
+        },
+      ],
+    );
   }
 
   function renderItem({ item }: { item: BudgetEntry }) {
@@ -67,8 +132,11 @@ export default function BudgetScreen() {
         <View style={styles.headerRow}>
           <ThemedText type="subtitle">Presupuesto</ThemedText>
           <View style={styles.headerActions}>
-            <Pressable onPress={handleExport} hitSlop={8} style={styles.headerActionButton}>
-              <ThemedText type="link">Exportar</ThemedText>
+            <Pressable onPress={handleImport} hitSlop={8} style={styles.headerIconButton}>
+              <Ionicons name="document-attach-outline" size={20} color={theme.text} />
+            </Pressable>
+            <Pressable onPress={handleExport} hitSlop={8} style={styles.headerIconButton}>
+              <Ionicons name="download-outline" size={20} color={theme.text} />
             </Pressable>
             <Link href="/budget/increase" style={styles.headerActionButton}>
               <ThemedText type="linkPrimary">+ Incremento</ThemedText>
@@ -125,6 +193,9 @@ const styles = StyleSheet.create({
   },
   headerActionButton: {
     paddingVertical: Spacing.two,
+  },
+  headerIconButton: {
+    padding: Spacing.one,
   },
   emptyState: {
     borderRadius: Spacing.three,

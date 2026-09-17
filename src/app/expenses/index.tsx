@@ -1,5 +1,9 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
+import * as DocumentPicker from 'expo-document-picker';
+import { File } from 'expo-file-system';
 import { Image } from 'expo-image';
 import { Link, useRouter } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
 import { useMemo, useState } from 'react';
 import { Alert, FlatList, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -15,6 +19,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { toISODateString } from '@/utils/date';
 import { alertUnexpectedError } from '@/utils/errors';
 import { buildExpensesCsv, shareCsv } from '@/utils/export';
+import { importExpensesFromCsv, parseExpensesCsv } from '@/utils/importCsv';
 import { formatAmount } from '@/utils/money';
 
 // Lista de gastos (orden por fecha desc), con buscador por nota y filtro
@@ -22,8 +27,9 @@ import { formatAmount } from '@/utils/money';
 export default function ExpensesScreen() {
   const router = useRouter();
   const theme = useTheme();
+  const db = useSQLiteContext();
   const { project } = useActiveProject();
-  const { expenses, loading } = useExpenses(project?.id);
+  const { expenses, loading, refetch } = useExpenses(project?.id);
   const { categories } = useCategories(project?.id);
 
   const [searchText, setSearchText] = useState('');
@@ -59,6 +65,64 @@ export default function ExpensesScreen() {
     }
   }
 
+  async function handleImport() {
+    if (!project) {
+      return;
+    }
+
+    let content: string;
+    try {
+      const picked = await DocumentPicker.getDocumentAsync({
+        type: '*/*',
+        copyToCacheDirectory: true,
+      });
+      if (picked.canceled || !picked.assets?.[0]) {
+        return;
+      }
+      content = await new File(picked.assets[0].uri).text();
+    } catch (error) {
+      alertUnexpectedError('No se pudo leer el archivo', error);
+      return;
+    }
+
+    const { rows, headerOk } = parseExpensesCsv(content);
+    if (!headerOk) {
+      Alert.alert(
+        'Formato no reconocido',
+        'El archivo debe tener las columnas Fecha, Monto, Categoría, Nota — el mismo formato que genera "Exportar".',
+      );
+      return;
+    }
+    if (rows.length === 0) {
+      Alert.alert('Archivo vacío', 'No se encontraron filas para importar.');
+      return;
+    }
+
+    Alert.alert(
+      'Importar gastos',
+      `Se importarán ${rows.length} gasto(s). Si ya tienes datos cargados, esto puede crear duplicados. ¿Continuar?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Importar',
+          onPress: async () => {
+            try {
+              const result = await importExpensesFromCsv(db, project.id, categories, rows);
+              refetch();
+              const summary =
+                result.skipped > 0
+                  ? `Se importaron ${result.imported} gasto(s). Se omitieron ${result.skipped} fila(s):\n${result.skipReasons.slice(0, 5).join('\n')}`
+                  : `Se importaron ${result.imported} gasto(s) correctamente.`;
+              Alert.alert('Importación completa', summary);
+            } catch (error) {
+              alertUnexpectedError('No se pudo importar', error);
+            }
+          },
+        },
+      ],
+    );
+  }
+
   function renderItem({ item }: { item: Expense }) {
     return (
       <Pressable
@@ -90,8 +154,11 @@ export default function ExpensesScreen() {
         <View style={styles.headerRow}>
           <ThemedText type="subtitle">Gastos</ThemedText>
           <View style={styles.headerActions}>
-            <Pressable onPress={handleExport} hitSlop={8} style={styles.headerActionButton}>
-              <ThemedText type="link">Exportar</ThemedText>
+            <Pressable onPress={handleImport} hitSlop={8} style={styles.headerIconButton}>
+              <Ionicons name="document-attach-outline" size={20} color={theme.text} />
+            </Pressable>
+            <Pressable onPress={handleExport} hitSlop={8} style={styles.headerIconButton}>
+              <Ionicons name="download-outline" size={20} color={theme.text} />
             </Pressable>
             <Link href="/expenses/new" style={styles.headerActionButton}>
               <ThemedText type="linkPrimary">+ Nuevo gasto</ThemedText>
@@ -194,6 +261,9 @@ const styles = StyleSheet.create({
   },
   headerActionButton: {
     paddingVertical: Spacing.two,
+  },
+  headerIconButton: {
+    padding: Spacing.one,
   },
   filters: {
     gap: Spacing.two,

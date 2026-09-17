@@ -2,22 +2,12 @@ import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 
 import type { BudgetEntry, Category, Expense } from '@/domain/types';
+import { toCsv } from '@/utils/csv';
 import { fromCents } from '@/utils/money';
 
 // Todos los montos se exportan en unidades "humanas" (ej. "1500.50", no en
 // centavos): son las que el usuario espera ver al abrir el CSV en
-// Excel/Sheets.
-
-function escapeCsvValue(value: string): string {
-  if (value.includes(',') || value.includes('"') || value.includes('\n')) {
-    return `"${value.replace(/"/g, '""')}"`;
-  }
-  return value;
-}
-
-function toCsv(headers: string[], rows: string[][]): string {
-  return [headers, ...rows].map((row) => row.map(escapeCsvValue).join(',')).join('\n');
-}
+// Excel/Sheets. Estas mismas cabeceras las espera src/utils/importCsv.ts.
 
 export function buildExpensesCsv(expenses: Expense[], categories: Category[]): string {
   const categoryNameById = new Map(categories.map((category) => [category.id, category.name]));
