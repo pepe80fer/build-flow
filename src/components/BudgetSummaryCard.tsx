@@ -11,6 +11,8 @@ interface BudgetSummaryCardProps {
   currency: string;
   /** 'negative' resalta el monto (ej. disponible que quedó en rojo). */
   emphasis?: 'default' | 'negative';
+  /** true = muestra un placeholder en vez del monto (privacidad rápida). */
+  hidden?: boolean;
 }
 
 export function BudgetSummaryCard({
@@ -18,6 +20,7 @@ export function BudgetSummaryCard({
   cents,
   currency,
   emphasis = 'default',
+  hidden = false,
 }: BudgetSummaryCardProps) {
   return (
     <ThemedView type="backgroundElement" style={styles.card}>
@@ -25,7 +28,7 @@ export function BudgetSummaryCard({
         {label}
       </ThemedText>
       <ThemedText type="subtitle" themeColor={emphasis === 'negative' ? 'danger' : undefined}>
-        {formatAmount(cents, currency)}
+        {hidden ? '••••••' : formatAmount(cents, currency)}
       </ThemedText>
     </ThemedView>
   );

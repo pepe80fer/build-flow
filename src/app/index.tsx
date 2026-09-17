@@ -1,5 +1,7 @@
+import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
-import { StyleSheet } from 'react-native';
+import { useState } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BudgetSummaryCard } from '@/components/BudgetSummaryCard';
@@ -8,13 +10,16 @@ import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { useActiveProject } from '@/hooks/useActiveProject';
 import { useBudgetSummary } from '@/hooks/useBudgetSummary';
+import { useTheme } from '@/hooks/use-theme';
 
 // Home: resumen de presupuesto (total, gastado, disponible) en tiempo real,
 // con acceso rápido a presupuesto y gastos. Si todavía no hay presupuesto
 // inicial configurado, invita a configurarlo primero.
 export default function HomeScreen() {
+  const theme = useTheme();
   const { project, loading: loadingProject } = useActiveProject();
   const { summary, loading: loadingSummary } = useBudgetSummary(project?.id);
+  const [amountsHidden, setAmountsHidden] = useState(false);
 
   if (loadingProject || !project) {
     return (
@@ -43,24 +48,42 @@ export default function HomeScreen() {
         )}
 
         {summary && hasInitialBudget && (
-          <ThemedView style={styles.summaryGroup}>
-            <BudgetSummaryCard
-              label="Presupuesto total"
-              cents={summary.totalBudget}
-              currency={project.currency}
-            />
-            <BudgetSummaryCard
-              label="Gastado"
-              cents={summary.totalSpent}
-              currency={project.currency}
-            />
-            <BudgetSummaryCard
-              label="Disponible"
-              cents={summary.available}
-              currency={project.currency}
-              emphasis={summary.available < 0 ? 'negative' : 'default'}
-            />
-          </ThemedView>
+          <View>
+            <View style={styles.summaryHeader}>
+              <Pressable
+                onPress={() => setAmountsHidden((current) => !current)}
+                hitSlop={8}
+                style={styles.eyeButton}
+              >
+                <Ionicons
+                  name={amountsHidden ? 'eye-off-outline' : 'eye-outline'}
+                  size={20}
+                  color={theme.textSecondary}
+                />
+              </Pressable>
+            </View>
+            <ThemedView style={styles.summaryGroup}>
+              <BudgetSummaryCard
+                label="Presupuesto total"
+                cents={summary.totalBudget}
+                currency={project.currency}
+                hidden={amountsHidden}
+              />
+              <BudgetSummaryCard
+                label="Gastado"
+                cents={summary.totalSpent}
+                currency={project.currency}
+                hidden={amountsHidden}
+              />
+              <BudgetSummaryCard
+                label="Disponible"
+                cents={summary.available}
+                currency={project.currency}
+                emphasis={summary.available < 0 ? 'negative' : 'default'}
+                hidden={amountsHidden}
+              />
+            </ThemedView>
+          </View>
         )}
 
         <ThemedView type="backgroundElement" style={styles.linkGroup}>
@@ -93,8 +116,16 @@ const styles = StyleSheet.create({
     padding: Spacing.three,
     gap: Spacing.two,
   },
+  summaryHeader: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  eyeButton: {
+    padding: Spacing.one,
+  },
   summaryGroup: {
     gap: Spacing.two,
+    marginTop: Spacing.one,
   },
   linkGroup: {
     borderRadius: Spacing.three,
