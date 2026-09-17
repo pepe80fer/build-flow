@@ -1,4 +1,4 @@
-# build-flow
+# Casa Huila Ma (build-flow)
 
 App móvil personal (React Native + Expo, Android) para llevar el control de gastos de la construcción de una vivienda contra un presupuesto que puede aumentar con el tiempo.
 
@@ -6,21 +6,27 @@ El plan de desarrollo completo (decisiones, modelo de datos, fases y tareas) est
 
 ## Estado
 
-MVP completo (Fases 0-6 del plan):
+MVP completo (Fases 0-6) + Entrega 2 completa (Fases 7-8):
 
 - Presupuesto inicial configurable (monto, moneda ISO, fecha), con historial completo de incrementos posteriores — editable y eliminable.
-- Registro de gastos por categoría predefinida de construcción (con "Otros" + nota libre), con fecha, monto y nota opcional.
-- Presupuesto total, gastado y disponible en tiempo real en la pantalla principal.
-- Editar y eliminar cualquier gasto o movimiento de presupuesto.
-- Exportar gastos e historial de presupuesto a CSV y compartirlos vía el share sheet de Android.
+- Registro de gastos por categoría predefinida de construcción (con "Otros" + nota libre), con fecha, monto, nota y foto del recibo opcionales.
+- Presupuesto total, gastado y disponible en tiempo real, con opción de ocultarlos rápidamente (ícono de ojo).
+- Reportes: gasto por categoría y curva de gasto acumulado vs presupuesto, navegables por semana/mes.
+- Buscador y filtro por categoría en la lista de gastos.
+- Exportar/importar gastos e historial de presupuesto en CSV (ver "Datos y respaldo").
 
 ## Datos y respaldo
 
 Todos los datos viven **únicamente en SQLite local, en tu teléfono** — no hay backend ni sincronización en la nube (ver `plan.md` para la evolución futura contemplada). Esto significa:
 
-- Si desinstalas la app o pierdes el teléfono, pierdes los datos.
-- El único respaldo disponible es manual: el botón **"Exportar"** en Gastos y en Presupuesto genera un CSV que puedes compartir a Drive, correo, etc.
+- Si **desinstalas** la app (o pierdes el teléfono), pierdes los datos. Actualizar la app instalando un nuevo `.apk` **sin desinstalar primero** sí conserva los datos — ver "Actualizar la app instalada" más abajo.
+- El respaldo es manual: el botón **"Exportar"** (ícono de descarga) en Gastos y en Presupuesto genera un CSV que puedes compartir a Drive, correo, etc.
+- El botón **"Importar"** (ícono de documento, junto a "Exportar") lee ese mismo CSV y vuelve a crear los registros — es la forma de recuperar los datos si alguna vez se pierde la base local. Si una fila trae una categoría que ya no existe, el gasto se guarda en "Otros" conservando el nombre original al inicio de la nota, para no perder esa información. Importar el mismo CSV dos veces duplica los registros — está pensado como recuperación puntual, no como sincronización.
 - Recomendación: exporta ambos CSV periódicamente (ej. cada semana) mientras dure la construcción.
+
+### Actualizar la app instalada (`.apk`)
+
+Compilaciones nuevas (`npx eas-cli build --platform android --profile preview`) instaladas **sobre la app ya instalada** (sin desinstalarla) se tratan como una actualización y conservan la base de datos — Android identifica la app por su `android.package` en `app.json`, que no cambia entre compilaciones. Desinstalar primero borra los datos sin remedio (fuera de un CSV exportado antes).
 
 ## Requisitos
 
