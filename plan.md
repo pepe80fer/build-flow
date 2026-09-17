@@ -197,13 +197,27 @@ Librería de gráficos: `react-native-gifted-charts` (SVG, compatible con Expo G
 - [x] 7.6 Pantalla "Reportes" (`src/app/reports/index.tsx`) + enlace desde Home
 - [x] 7.7 Validación en dispositivo Android real
 
-## 7. Entregas futuras (fuera de alcance de este trabajo)
+## 7. Entrega 2 (parte 2) — Filtros/búsqueda y fotos
 
-**Entrega 2 (parte 2, después de Fase 7):**
+Segundo recorte de la Entrega 2: filtros/búsqueda de gastos y fotos de recibos. El PIN/biometría queda como backlog (ver sección 8), no comprometido para esta parte.
 
-- Filtros y búsqueda de gastos
-- Fotos/recibos adjuntos a cada gasto
-- Backlog: PIN/biometría para abrir la app
+Fotos: `expo-image-picker` (cámara/galería) + copiar el archivo a una carpeta persistente con `expo-file-system`, guardando la ruta en una nueva columna `photo_uri` de `expenses` vía migración `002`.
+
+### Fase 8 — Filtros/búsqueda y fotos
+
+- [ ] 8.1 Buscador de texto (por nota) + filtro por categoría en la lista de gastos
+- [ ] 8.2 Migración `002`: columna `photo_uri` en `expenses`; actualizar tipos y repositorio
+- [ ] 8.3 Utilidad de almacenamiento de fotos (copiar a carpeta persistente, borrar al reemplazar/eliminar)
+- [ ] 8.4 Componente para tomar foto / elegir de galería / ver / quitar, integrado en el formulario de gasto
+- [ ] 8.5 Miniatura de foto en la lista y detalle de gastos
+- [ ] 8.6 Eliminar el archivo de foto al eliminar el gasto (evitar huérfanos)
+- [ ] 8.7 Validación en dispositivo Android real
+
+## 8. Entregas futuras (fuera de alcance de este trabajo)
+
+**Entrega 2 (backlog, sin comprometer aún):**
+
+- PIN/biometría para abrir la app
 
 **Entrega 3 (a futuro, no ahora):**
 
