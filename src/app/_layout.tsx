@@ -25,7 +25,7 @@ export default function RootLayout() {
     >
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
-          <Stack.Screen name="index" options={{ title: 'build-flow' }} />
+          <Stack.Screen name="index" options={{ title: 'Casa Huila Ma' }} />
           <Stack.Screen name="expenses/index" options={{ title: 'Gastos' }} />
           <Stack.Screen
             name="expenses/new"

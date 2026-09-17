@@ -31,7 +31,7 @@ export default function HomeScreen() {
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
-        <ThemedText type="title">build-flow</ThemedText>
+        <ThemedText type="title">Casa Huila Ma</ThemedText>
 
         {!loadingSummary && !hasInitialBudget && (
           <ThemedView type="backgroundElement" style={styles.ctaCard}>
