@@ -1,6 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as DocumentPicker from 'expo-document-picker';
-import { readAsStringAsync } from 'expo-file-system/legacy';
 import { Image } from 'expo-image';
 import { Link, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
@@ -79,7 +78,7 @@ export default function ExpensesScreen() {
       if (picked.canceled || !picked.assets?.[0]) {
         return;
       }
-      content = await readAsStringAsync(picked.assets[0].uri, { encoding: 'utf8' });
+      content = await (await fetch(picked.assets[0].uri)).text();
     } catch (error) {
       alertUnexpectedError('No se pudo leer el archivo', error);
       return;
