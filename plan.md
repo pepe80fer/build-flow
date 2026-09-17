@@ -195,7 +195,7 @@ Librería de gráficos: `react-native-gifted-charts` (SVG, compatible con Expo G
 - [x] 7.4 Gráfico de gasto por categoría (dona/barras)
 - [x] 7.5 Gráfico de curva de gasto acumulado vs presupuesto disponible en el tiempo
 - [x] 7.6 Pantalla "Reportes" (`src/app/reports/index.tsx`) + enlace desde Home
-- [ ] 7.7 Validación en dispositivo Android real
+- [x] 7.7 Validación en dispositivo Android real
 
 ## 7. Entregas futuras (fuera de alcance de este trabajo)
 
