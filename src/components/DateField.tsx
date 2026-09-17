@@ -22,10 +22,8 @@ export function DateField({ label, value, onChange }: DateFieldProps) {
     DateTimePickerAndroid.open({
       value,
       mode: 'date',
-      onChange: (_event, date) => {
-        if (date) {
-          onChange(date);
-        }
+      onValueChange: (_event, date) => {
+        onChange(date);
       },
     });
   }
