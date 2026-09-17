@@ -147,11 +147,11 @@ build-flow/
 
 ### Fase 2 — Presupuesto
 
-- [ ] 2.1 Pantalla "Configurar presupuesto inicial" (monto, moneda, fecha) — primer arranque
-- [ ] 2.2 Pantalla resumen: presupuesto total, gastado, disponible (tiempo real)
-- [ ] 2.3 Pantalla "Historial de incrementos"
-- [ ] 2.4 Formulario "Registrar incremento" (fecha, monto, nota opcional)
-- [ ] 2.5 Editar/eliminar un incremento (incluye poder editar el "inicial")
+- [x] 2.1 Pantalla "Configurar presupuesto inicial" (monto, moneda, fecha) — primer arranque
+- [x] 2.2 Pantalla resumen: presupuesto total, gastado, disponible (tiempo real)
+- [x] 2.3 Pantalla "Historial de incrementos"
+- [x] 2.4 Formulario "Registrar incremento" (fecha, monto, nota opcional)
+- [x] 2.5 Editar/eliminar un incremento (incluye poder editar el "inicial")
 
 ### Fase 3 — Gastos
 

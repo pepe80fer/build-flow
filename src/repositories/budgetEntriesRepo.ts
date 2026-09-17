@@ -88,3 +88,37 @@ export async function updateBudgetEntry(
 export async function deleteBudgetEntry(db: SQLiteDatabase, id: number): Promise<void> {
   await db.runAsync('DELETE FROM budget_entries WHERE id = $id', { $id: id });
 }
+
+export async function getBudgetEntryById(
+  db: SQLiteDatabase,
+  id: number,
+): Promise<BudgetEntry | null> {
+  const row = await db.getFirstAsync<BudgetEntryRow>(
+    'SELECT * FROM budget_entries WHERE id = $id',
+    {
+      $id: id,
+    },
+  );
+  return row ? mapRow(row) : null;
+}
+
+// El proyecto tiene a lo más un movimiento tipo 'initial'. Se usa para saber
+// si ya se configuró el presupuesto inicial (ver src/app/budget/increase.tsx).
+export async function getInitialBudgetEntry(
+  db: SQLiteDatabase,
+  projectId: number,
+): Promise<BudgetEntry | null> {
+  const row = await db.getFirstAsync<BudgetEntryRow>(
+    "SELECT * FROM budget_entries WHERE project_id = $projectId AND type = 'initial' LIMIT 1",
+    { $projectId: projectId },
+  );
+  return row ? mapRow(row) : null;
+}
+
+export async function countBudgetEntries(db: SQLiteDatabase, projectId: number): Promise<number> {
+  const row = await db.getFirstAsync<{ count: number }>(
+    'SELECT COUNT(*) as count FROM budget_entries WHERE project_id = $projectId',
+    { $projectId: projectId },
+  );
+  return row?.count ?? 0;
+}
