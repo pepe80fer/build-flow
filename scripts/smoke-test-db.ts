@@ -47,7 +47,7 @@ async function main(): Promise<void> {
 
   const project = await getActiveProject(db);
   assertEqual(project?.name, 'Mi Casa', 'proyecto por defecto creado');
-  assertEqual(project?.currency, 'MXN', 'moneda por defecto');
+  assertEqual(project?.currency, 'COP', 'moneda por defecto');
   if (!project) {
     throw new Error('No se pudo crear el proyecto default, abortando');
   }

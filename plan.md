@@ -49,7 +49,7 @@ Oculta en la UI del MVP; se crea una automáticamente al primer arranque.
 | `id`                        | PK                            |                                                          |
 | `name`                      | string                        | ej. "Mi Casa"                                            |
 | `type`                      | `'construction' \| 'generic'` | hoy solo `'construction'`; abre la puerta a la Entrega 3 |
-| `currency`                  | string (ISO)                  | ej. `MXN`, elegible al primer arranque                   |
+| `currency`                  | string (ISO)                  | ej. `COP`, elegible al primer arranque                   |
 | `created_at` / `updated_at` | timestamp                     |                                                          |
 | `is_archived`               | bool                          | reservado para futuro multi-proyecto                     |
 

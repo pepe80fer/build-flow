@@ -11,5 +11,5 @@ export function fromCents(cents: number): number {
 }
 
 export function formatAmount(cents: number, currency: string): string {
-  return new Intl.NumberFormat('es-MX', { style: 'currency', currency }).format(fromCents(cents));
+  return new Intl.NumberFormat('es-CO', { style: 'currency', currency }).format(fromCents(cents));
 }

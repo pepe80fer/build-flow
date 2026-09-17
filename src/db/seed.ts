@@ -15,7 +15,7 @@ export const DEFAULT_CATEGORIES = [
 
 const DEFAULT_PROJECT_NAME = 'Mi Casa';
 const DEFAULT_PROJECT_TYPE = 'construction';
-const DEFAULT_CURRENCY = 'MXN';
+const DEFAULT_CURRENCY = 'COP';
 
 // El MVP trabaja con un único proyecto, creado automáticamente y oculto en
 // la UI (ver plan.md, sección "Modelo de datos"). Esta función es idempotente:
