@@ -155,11 +155,11 @@ build-flow/
 
 ### Fase 3 — Gastos
 
-- [ ] 3.1 Formulario "Nuevo gasto" (fecha con selector, monto, categoría predefinida + otros, nota opcional)
-- [ ] 3.2 Lista de gastos (orden por fecha desc)
-- [ ] 3.3 Editar gasto existente
-- [ ] 3.4 Eliminar gasto (con confirmación)
-- [ ] 3.5 Recalculo en tiempo real del disponible tras crear/editar/eliminar
+- [x] 3.1 Formulario "Nuevo gasto" (fecha con selector, monto, categoría predefinida + otros, nota opcional)
+- [x] 3.2 Lista de gastos (orden por fecha desc)
+- [x] 3.3 Editar gasto existente
+- [x] 3.4 Eliminar gasto (con confirmación)
+- [x] 3.5 Recalculo en tiempo real del disponible tras crear/editar/eliminar
 
 ### Fase 4 — Exportación / Backup
 
