@@ -27,7 +27,11 @@ export function BudgetSummaryCard({
       <ThemedText type="small" themeColor="textSecondary">
         {label}
       </ThemedText>
-      <ThemedText type="subtitle" themeColor={emphasis === 'negative' ? 'danger' : undefined}>
+      <ThemedText
+        type="subtitle"
+        themeColor={emphasis === 'negative' ? 'danger' : undefined}
+        style={styles.value}
+      >
         {hidden ? '••••••' : formatAmount(cents, currency)}
       </ThemedText>
     </ThemedView>
@@ -39,5 +43,8 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.three,
     padding: Spacing.three,
     gap: Spacing.one,
+  },
+  value: {
+    textAlign: 'right',
   },
 });
