@@ -70,6 +70,9 @@ export default function HomeScreen() {
           <Link href="/expenses" style={styles.link}>
             <ThemedText type="link">Ver gastos</ThemedText>
           </Link>
+          <Link href="/reports" style={styles.link}>
+            <ThemedText type="link">Ver reportes</ThemedText>
+          </Link>
         </ThemedView>
       </SafeAreaView>
     </ThemedView>

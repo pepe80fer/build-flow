@@ -45,3 +45,18 @@ export const Spacing = {
 } as const;
 
 export const MaxContentWidth = 800;
+
+// Paleta categórica para gráficos (ej. gasto por categoría): un color fijo
+// por posición, independiente de tema claro/oscuro, elegidos para que se
+// distingan bien entre sí y se lean bien sobre fondos claros y oscuros.
+export const ChartColors = [
+  '#3C87F7',
+  '#F79B3C',
+  '#2FB380',
+  '#E3477E',
+  '#8B6CF0',
+  '#E0B843',
+  '#3CB8C4',
+  '#C4573C',
+  '#7A8794',
+] as const;

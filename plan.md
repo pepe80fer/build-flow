@@ -189,12 +189,12 @@ Librería de gráficos: `react-native-gifted-charts` (SVG, compatible con Expo G
 
 ### Fase 7 — Reportes y gráficos
 
-- [ ] 7.1 Instalar `react-native-gifted-charts` + `react-native-svg`
-- [ ] 7.2 Funciones de agregación: gasto por categoría y por período (semana/mes) en `src/domain/reports.ts`
-- [ ] 7.3 Selector de período (semana / mes / todo) + total gastado en el período
-- [ ] 7.4 Gráfico de gasto por categoría (dona/barras)
-- [ ] 7.5 Gráfico de curva de gasto acumulado vs presupuesto disponible en el tiempo
-- [ ] 7.6 Pantalla "Reportes" (`src/app/reports/index.tsx`) + enlace desde Home
+- [x] 7.1 Instalar `react-native-gifted-charts` + `react-native-svg`
+- [x] 7.2 Funciones de agregación: gasto por categoría y por período (semana/mes) en `src/domain/reports.ts`
+- [x] 7.3 Selector de período (semana / mes / todo) + total gastado en el período
+- [x] 7.4 Gráfico de gasto por categoría (dona/barras)
+- [x] 7.5 Gráfico de curva de gasto acumulado vs presupuesto disponible en el tiempo
+- [x] 7.6 Pantalla "Reportes" (`src/app/reports/index.tsx`) + enlace desde Home
 - [ ] 7.7 Validación en dispositivo Android real
 
 ## 7. Entregas futuras (fuera de alcance de este trabajo)

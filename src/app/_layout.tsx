@@ -40,6 +40,7 @@ export default function RootLayout() {
             name="budget/increase"
             options={{ title: 'Registrar incremento', presentation: 'modal' }}
           />
+          <Stack.Screen name="reports/index" options={{ title: 'Reportes' }} />
         </Stack>
       </ThemeProvider>
     </SQLiteProvider>
