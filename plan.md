@@ -177,9 +177,9 @@ build-flow/
 
 ### Fase 6 — Entrega
 
-- [ ] 6.1 README con instrucciones de instalación/uso
-- [ ] 6.2 Commit y push final del MVP
-- [ ] 6.3 Validación en dispositivo Android real
+- [x] 6.1 README con instrucciones de instalación/uso
+- [x] 6.2 Commit y push final del MVP
+- [x] 6.3 Validación en dispositivo Android real
 
 ## 6. Entregas futuras (fuera de alcance del MVP)
 

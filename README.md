@@ -4,6 +4,24 @@ App móvil personal (React Native + Expo, Android) para llevar el control de gas
 
 El plan de desarrollo completo (decisiones, modelo de datos, fases y tareas) está en [`plan.md`](./plan.md).
 
+## Estado
+
+MVP completo (Fases 0-6 del plan):
+
+- Presupuesto inicial configurable (monto, moneda ISO, fecha), con historial completo de incrementos posteriores — editable y eliminable.
+- Registro de gastos por categoría predefinida de construcción (con "Otros" + nota libre), con fecha, monto y nota opcional.
+- Presupuesto total, gastado y disponible en tiempo real en la pantalla principal.
+- Editar y eliminar cualquier gasto o movimiento de presupuesto.
+- Exportar gastos e historial de presupuesto a CSV y compartirlos vía el share sheet de Android.
+
+## Datos y respaldo
+
+Todos los datos viven **únicamente en SQLite local, en tu teléfono** — no hay backend ni sincronización en la nube (ver `plan.md` para la evolución futura contemplada). Esto significa:
+
+- Si desinstalas la app o pierdes el teléfono, pierdes los datos.
+- El único respaldo disponible es manual: el botón **"Exportar"** en Gastos y en Presupuesto genera un CSV que puedes compartir a Drive, correo, etc.
+- Recomendación: exporta ambos CSV periódicamente (ej. cada semana) mientras dure la construcción.
+
 ## Requisitos
 
 - Node.js 20+
@@ -41,7 +59,7 @@ Sin esa configuración, este comando falla buscando `adb`; usa la opción de Exp
 - `src/db/` — cliente, migraciones y seed de SQLite
 - `src/repositories/` — capa de acceso a datos (projects, categories, budget_entries, expenses)
 - `src/domain/` — tipos y cálculos (presupuesto, disponible, etc.)
-- `src/store/` — estado de UI con Zustand (Fase 2+)
+- `src/store/` — estado de UI con Zustand (proyecto activo)
 - `src/components/`, `src/hooks/`, `src/utils/` — piezas compartidas
 - `scripts/` — herramientas de desarrollo (no son parte de la app), ej. el smoke test de la base de datos
 
