@@ -2,25 +2,29 @@ import { Link, useRouter } from 'expo-router';
 import { Alert, FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { BudgetSummaryCard } from '@/components/BudgetSummaryCard';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import type { BudgetEntry } from '@/domain/types';
 import { useActiveProject } from '@/hooks/useActiveProject';
 import { useBudgetEntries } from '@/hooks/useBudgetEntries';
+import { useBudgetSummary } from '@/hooks/useBudgetSummary';
 import { useTheme } from '@/hooks/use-theme';
 import { toISODateString } from '@/utils/date';
 import { alertUnexpectedError } from '@/utils/errors';
 import { buildBudgetEntriesCsv, shareCsv } from '@/utils/export';
 import { formatAmount } from '@/utils/money';
 
-// Historial completo de movimientos de presupuesto (inicial + incrementos).
-// Cada fila lleva a editarla/eliminarla en src/app/budget/increase.tsx.
+// Presupuesto total (arriba) + historial completo de movimientos
+// (inicial + incrementos, abajo). Cada fila lleva a editarla/eliminarla en
+// src/app/budget/increase.tsx.
 export default function BudgetScreen() {
   const router = useRouter();
   const theme = useTheme();
   const { project } = useActiveProject();
   const { entries, loading } = useBudgetEntries(project?.id);
+  const { summary } = useBudgetSummary(project?.id);
 
   async function handleExport() {
     if (entries.length === 0) {
@@ -71,6 +75,14 @@ export default function BudgetScreen() {
             </Link>
           </View>
         </View>
+
+        {summary && summary.hasEntries && (
+          <BudgetSummaryCard
+            label="Presupuesto total"
+            cents={summary.totalBudget}
+            currency={project?.currency ?? 'COP'}
+          />
+        )}
 
         {!loading && entries.length === 0 && (
           <ThemedView type="backgroundElement" style={styles.emptyState}>

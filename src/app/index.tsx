@@ -77,12 +77,6 @@ export default function HomeScreen() {
             </View>
             <ThemedView style={styles.summaryGroup}>
               <BudgetSummaryCard
-                label="Presupuesto total"
-                cents={summary.totalBudget}
-                currency={project.currency}
-                hidden={amountsHidden}
-              />
-              <BudgetSummaryCard
                 label="Gastado"
                 cents={summary.totalSpent}
                 currency={project.currency}
