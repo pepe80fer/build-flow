@@ -74,7 +74,7 @@ export default function ExpensesScreen() {
     try {
       const picked = await DocumentPicker.getDocumentAsync({
         type: '*/*',
-        copyToCacheDirectory: true,
+        copyToCacheDirectory: false,
       });
       if (picked.canceled || !picked.assets?.[0]) {
         return;
