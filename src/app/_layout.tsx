@@ -1,13 +1,28 @@
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import { SQLiteProvider } from 'expo-sqlite';
-import { useColorScheme } from 'react-native';
+import { Alert, useColorScheme } from 'react-native';
 
 import { DATABASE_NAME, initializeDatabase } from '@/db/client';
+
+// Si falla la inicialización de la base de datos (migraciones/seed), es un
+// error irrecuperable para esta sesión de la app: se avisa y se registra en
+// consola en vez de dejar que crashee sin explicación.
+function handleDatabaseError(error: Error): void {
+  console.error('No se pudo iniciar la base de datos', error);
+  Alert.alert(
+    'No se pudo iniciar la app',
+    'Cierra y vuelve a abrir la app. Si el problema persiste, contáctame.',
+  );
+}
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   return (
-    <SQLiteProvider databaseName={DATABASE_NAME} onInit={initializeDatabase}>
+    <SQLiteProvider
+      databaseName={DATABASE_NAME}
+      onInit={initializeDatabase}
+      onError={handleDatabaseError}
+    >
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen name="index" options={{ title: 'build-flow' }} />

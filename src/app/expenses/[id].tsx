@@ -12,6 +12,7 @@ import { useActiveProject } from '@/hooks/useActiveProject';
 import { useCategories } from '@/hooks/useCategories';
 import { deleteExpense, getExpenseById, updateExpense } from '@/repositories/expensesRepo';
 import { fromISODateString, toISODateString } from '@/utils/date';
+import { alertUnexpectedError } from '@/utils/errors';
 import { fromCents, toCents } from '@/utils/money';
 
 // Editar/eliminar un gasto existente.
@@ -35,8 +36,16 @@ export default function EditExpenseScreen() {
     let isActive = true;
 
     (async () => {
-      const expense = await getExpenseById(db, expenseId);
-      if (isActive && expense) {
+      try {
+        const expense = await getExpenseById(db, expenseId);
+        if (!isActive) {
+          return;
+        }
+        if (!expense) {
+          Alert.alert('Gasto no encontrado', 'Es posible que ya se haya eliminado.');
+          router.back();
+          return;
+        }
         setValues({
           date: fromISODateString(expense.date),
           amountText: String(fromCents(expense.amount)),
@@ -44,13 +53,18 @@ export default function EditExpenseScreen() {
           note: expense.note ?? '',
         });
         setStatus('ready');
+      } catch (error) {
+        if (isActive) {
+          alertUnexpectedError('No se pudo cargar el gasto', error);
+          router.back();
+        }
       }
     })();
 
     return () => {
       isActive = false;
     };
-  }, [db, expenseId]);
+  }, [db, expenseId, router]);
 
   if (!project || loadingCategories || status === 'loading') {
     return (
@@ -73,14 +87,17 @@ export default function EditExpenseScreen() {
       return;
     }
 
-    await updateExpense(db, expenseId, {
-      categoryId: values.categoryId,
-      date: toISODateString(values.date),
-      amount: toCents(amountNumber),
-      note: values.note.trim() ? values.note.trim() : null,
-    });
-
-    router.back();
+    try {
+      await updateExpense(db, expenseId, {
+        categoryId: values.categoryId,
+        date: toISODateString(values.date),
+        amount: toCents(amountNumber),
+        note: values.note.trim() ? values.note.trim() : null,
+      });
+      router.back();
+    } catch (error) {
+      alertUnexpectedError('No se pudo guardar el gasto', error);
+    }
   }
 
   function handleDelete() {
@@ -90,8 +107,12 @@ export default function EditExpenseScreen() {
         text: 'Eliminar',
         style: 'destructive',
         onPress: async () => {
-          await deleteExpense(db, expenseId);
-          router.back();
+          try {
+            await deleteExpense(db, expenseId);
+            router.back();
+          } catch (error) {
+            alertUnexpectedError('No se pudo eliminar el gasto', error);
+          }
         },
       },
     ]);

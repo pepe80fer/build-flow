@@ -12,6 +12,7 @@ import { useActiveProject } from '@/hooks/useActiveProject';
 import { useCategories } from '@/hooks/useCategories';
 import { addExpense } from '@/repositories/expensesRepo';
 import { toISODateString } from '@/utils/date';
+import { alertUnexpectedError } from '@/utils/errors';
 import { toCents } from '@/utils/money';
 
 // Formulario "Nuevo gasto": fecha, monto, categoría y nota opcional.
@@ -53,15 +54,18 @@ export default function NewExpenseScreen() {
       return;
     }
 
-    await addExpense(db, {
-      projectId: project.id,
-      categoryId: values.categoryId,
-      date: toISODateString(values.date),
-      amount: toCents(amountNumber),
-      note: values.note.trim() ? values.note.trim() : null,
-    });
-
-    router.back();
+    try {
+      await addExpense(db, {
+        projectId: project.id,
+        categoryId: values.categoryId,
+        date: toISODateString(values.date),
+        amount: toCents(amountNumber),
+        note: values.note.trim() ? values.note.trim() : null,
+      });
+      router.back();
+    } catch (error) {
+      alertUnexpectedError('No se pudo guardar el gasto', error);
+    }
   }
 
   return (

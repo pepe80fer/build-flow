@@ -169,11 +169,11 @@ build-flow/
 
 ### Fase 5 — Pulido UI/UX
 
-- [ ] 5.1 Estados vacíos (sin gastos, sin incrementos)
-- [ ] 5.2 Validaciones de formularios (montos positivos, fecha y categoría requeridas)
-- [ ] 5.3 Formato de moneda/números consistente
-- [ ] 5.4 Ajustes visuales mobile-first (tamaños táctiles, spacing, tipografía)
-- [ ] 5.5 Manejo básico de errores
+- [x] 5.1 Estados vacíos (sin gastos, sin incrementos)
+- [x] 5.2 Validaciones de formularios (montos positivos, fecha y categoría requeridas)
+- [x] 5.3 Formato de moneda/números consistente
+- [x] 5.4 Ajustes visuales mobile-first (tamaños táctiles, spacing, tipografía)
+- [x] 5.5 Manejo básico de errores
 
 ### Fase 6 — Entrega
 

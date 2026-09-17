@@ -36,7 +36,7 @@ export default function HomeScreen() {
         {!loadingSummary && !hasInitialBudget && (
           <ThemedView type="backgroundElement" style={styles.ctaCard}>
             <ThemedText type="smallBold">Todavía no tienes presupuesto configurado</ThemedText>
-            <Link href="/budget/increase">
+            <Link href="/budget/increase" style={styles.link}>
               <ThemedText type="linkPrimary">Configurar presupuesto inicial</ThemedText>
             </Link>
           </ThemedView>
@@ -99,6 +99,6 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   link: {
-    paddingVertical: Spacing.one,
+    paddingVertical: Spacing.two,
   },
 });

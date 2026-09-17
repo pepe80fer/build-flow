@@ -82,8 +82,9 @@ const styles = StyleSheet.create({
   },
   value: {
     borderRadius: Spacing.two,
-    paddingVertical: Spacing.two,
+    minHeight: 48,
     paddingHorizontal: Spacing.three,
+    justifyContent: 'center',
   },
   backdrop: {
     flex: 1,

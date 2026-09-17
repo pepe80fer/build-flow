@@ -11,6 +11,7 @@ import { useCategories } from '@/hooks/useCategories';
 import { useExpenses } from '@/hooks/useExpenses';
 import { useTheme } from '@/hooks/use-theme';
 import { toISODateString } from '@/utils/date';
+import { alertUnexpectedError } from '@/utils/errors';
 import { buildExpensesCsv, shareCsv } from '@/utils/export';
 import { formatAmount } from '@/utils/money';
 
@@ -36,10 +37,7 @@ export default function ExpensesScreen() {
       const csv = buildExpensesCsv(expenses, categories);
       await shareCsv(`gastos-${toISODateString(new Date())}.csv`, csv);
     } catch (error) {
-      Alert.alert(
-        'No se pudo exportar',
-        error instanceof Error ? error.message : 'Intenta de nuevo.',
-      );
+      alertUnexpectedError('No se pudo exportar', error);
     }
   }
 
@@ -69,17 +67,22 @@ export default function ExpensesScreen() {
         <View style={styles.headerRow}>
           <ThemedText type="subtitle">Gastos</ThemedText>
           <View style={styles.headerActions}>
-            <Pressable onPress={handleExport}>
+            <Pressable onPress={handleExport} hitSlop={8} style={styles.headerActionButton}>
               <ThemedText type="link">Exportar</ThemedText>
             </Pressable>
-            <Link href="/expenses/new">
+            <Link href="/expenses/new" style={styles.headerActionButton}>
               <ThemedText type="linkPrimary">+ Nuevo gasto</ThemedText>
             </Link>
           </View>
         </View>
 
         {!loading && expenses.length === 0 && (
-          <ThemedText type="small">Todavía no hay gastos registrados.</ThemedText>
+          <ThemedView type="backgroundElement" style={styles.emptyState}>
+            <ThemedText type="smallBold">Todavía no hay gastos registrados.</ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              Toca &quot;+ Nuevo gasto&quot; para registrar el primero.
+            </ThemedText>
+          </ThemedView>
         )}
 
         <FlatList
@@ -111,6 +114,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.three,
+  },
+  headerActionButton: {
+    paddingVertical: Spacing.two,
+  },
+  emptyState: {
+    borderRadius: Spacing.three,
+    padding: Spacing.three,
+    gap: Spacing.half,
   },
   list: {
     gap: Spacing.two,

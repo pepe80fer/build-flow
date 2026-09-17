@@ -10,6 +10,7 @@ import { useActiveProject } from '@/hooks/useActiveProject';
 import { useBudgetEntries } from '@/hooks/useBudgetEntries';
 import { useTheme } from '@/hooks/use-theme';
 import { toISODateString } from '@/utils/date';
+import { alertUnexpectedError } from '@/utils/errors';
 import { buildBudgetEntriesCsv, shareCsv } from '@/utils/export';
 import { formatAmount } from '@/utils/money';
 
@@ -30,10 +31,7 @@ export default function BudgetScreen() {
       const csv = buildBudgetEntriesCsv(entries);
       await shareCsv(`presupuesto-${toISODateString(new Date())}.csv`, csv);
     } catch (error) {
-      Alert.alert(
-        'No se pudo exportar',
-        error instanceof Error ? error.message : 'Intenta de nuevo.',
-      );
+      alertUnexpectedError('No se pudo exportar', error);
     }
   }
 
@@ -65,17 +63,22 @@ export default function BudgetScreen() {
         <View style={styles.headerRow}>
           <ThemedText type="subtitle">Presupuesto</ThemedText>
           <View style={styles.headerActions}>
-            <Pressable onPress={handleExport}>
+            <Pressable onPress={handleExport} hitSlop={8} style={styles.headerActionButton}>
               <ThemedText type="link">Exportar</ThemedText>
             </Pressable>
-            <Link href="/budget/increase">
+            <Link href="/budget/increase" style={styles.headerActionButton}>
               <ThemedText type="linkPrimary">+ Incremento</ThemedText>
             </Link>
           </View>
         </View>
 
         {!loading && entries.length === 0 && (
-          <ThemedText type="small">Todavía no hay movimientos de presupuesto.</ThemedText>
+          <ThemedView type="backgroundElement" style={styles.emptyState}>
+            <ThemedText type="smallBold">Todavía no hay movimientos de presupuesto.</ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              Toca &quot;+ Incremento&quot; para configurar tu presupuesto inicial.
+            </ThemedText>
+          </ThemedView>
         )}
 
         <FlatList
@@ -107,6 +110,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.three,
+  },
+  headerActionButton: {
+    paddingVertical: Spacing.two,
+  },
+  emptyState: {
+    borderRadius: Spacing.three,
+    padding: Spacing.three,
+    gap: Spacing.half,
   },
   list: {
     gap: Spacing.two,

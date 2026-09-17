@@ -21,6 +21,7 @@ import {
 import { updateProject } from '@/repositories/projectsRepo';
 import { useAppStore } from '@/store/useAppStore';
 import { fromISODateString, toISODateString } from '@/utils/date';
+import { alertUnexpectedError } from '@/utils/errors';
 import { fromCents, toCents } from '@/utils/money';
 
 // Formulario único para crear o editar un movimiento de presupuesto.
@@ -55,30 +56,43 @@ export default function BudgetEntryFormScreen() {
     let isActive = true;
 
     (async () => {
-      if (editingId !== undefined) {
-        const entry = await getBudgetEntryById(db, editingId);
-        if (isActive && entry) {
+      try {
+        if (editingId !== undefined) {
+          const entry = await getBudgetEntryById(db, editingId);
+          if (!isActive) {
+            return;
+          }
+          if (!entry) {
+            Alert.alert('Movimiento no encontrado', 'Es posible que ya se haya eliminado.');
+            router.back();
+            return;
+          }
           setIsInitial(entry.type === 'initial');
           setDate(fromISODateString(entry.date));
           setAmountText(String(fromCents(entry.amount)));
           setNote(entry.note ?? '');
+        } else {
+          const initialEntry = await getInitialBudgetEntry(db, project.id);
+          if (isActive) {
+            setIsInitial(initialEntry === null);
+            setCurrencyCode(project.currency);
+          }
         }
-      } else {
-        const initialEntry = await getInitialBudgetEntry(db, project.id);
         if (isActive) {
-          setIsInitial(initialEntry === null);
-          setCurrencyCode(project.currency);
+          setStatus('ready');
         }
-      }
-      if (isActive) {
-        setStatus('ready');
+      } catch (error) {
+        if (isActive) {
+          alertUnexpectedError('No se pudo cargar el presupuesto', error);
+          router.back();
+        }
       }
     })();
 
     return () => {
       isActive = false;
     };
-  }, [db, editingId, project]);
+  }, [db, editingId, project, router]);
 
   useEffect(() => {
     const title = isEditing
@@ -112,44 +126,51 @@ export default function BudgetEntryFormScreen() {
       return;
     }
 
-    const isoDate = toISODateString(date);
-    const amountCents = toCents(amountNumber);
-    const noteToSave = note.trim() ? note.trim() : null;
-
-    if (isEditing && editingId !== undefined) {
-      await updateBudgetEntry(db, editingId, {
-        date: isoDate,
-        amount: amountCents,
-        note: noteToSave,
-      });
-    } else if (isInitial) {
-      const trimmedCurrency = currencyCode.trim().toUpperCase();
+    let trimmedCurrency = project.currency;
+    if (!isEditing && isInitial) {
+      trimmedCurrency = currencyCode.trim().toUpperCase();
       if (trimmedCurrency.length !== 3) {
         Alert.alert('Moneda inválida', 'Ingresa un código de moneda ISO de 3 letras, ej. COP.');
         return;
       }
-      if (trimmedCurrency !== project.currency) {
-        await updateProject(db, project.id, { currency: trimmedCurrency });
-        setActiveProject({ ...project, currency: trimmedCurrency });
-      }
-      await addBudgetEntry(db, {
-        projectId: project.id,
-        date: isoDate,
-        amount: amountCents,
-        type: 'initial',
-        note: noteToSave,
-      });
-    } else {
-      await addBudgetEntry(db, {
-        projectId: project.id,
-        date: isoDate,
-        amount: amountCents,
-        type: 'increase',
-        note: noteToSave,
-      });
     }
 
-    router.back();
+    const isoDate = toISODateString(date);
+    const amountCents = toCents(amountNumber);
+    const noteToSave = note.trim() ? note.trim() : null;
+
+    try {
+      if (isEditing && editingId !== undefined) {
+        await updateBudgetEntry(db, editingId, {
+          date: isoDate,
+          amount: amountCents,
+          note: noteToSave,
+        });
+      } else if (isInitial) {
+        if (trimmedCurrency !== project.currency) {
+          await updateProject(db, project.id, { currency: trimmedCurrency });
+          setActiveProject({ ...project, currency: trimmedCurrency });
+        }
+        await addBudgetEntry(db, {
+          projectId: project.id,
+          date: isoDate,
+          amount: amountCents,
+          type: 'initial',
+          note: noteToSave,
+        });
+      } else {
+        await addBudgetEntry(db, {
+          projectId: project.id,
+          date: isoDate,
+          amount: amountCents,
+          type: 'increase',
+          note: noteToSave,
+        });
+      }
+      router.back();
+    } catch (error) {
+      alertUnexpectedError('No se pudo guardar el presupuesto', error);
+    }
   }
 
   function handleDelete() {
@@ -165,8 +186,12 @@ export default function BudgetEntryFormScreen() {
           text: 'Eliminar',
           style: 'destructive',
           onPress: async () => {
-            await deleteBudgetEntry(db, editingId);
-            router.back();
+            try {
+              await deleteBudgetEntry(db, editingId);
+              router.back();
+            } catch (error) {
+              alertUnexpectedError('No se pudo eliminar el movimiento', error);
+            }
           },
         },
       ],
@@ -261,7 +286,7 @@ const styles = StyleSheet.create({
   },
   input: {
     borderRadius: Spacing.two,
-    paddingVertical: Spacing.two,
+    minHeight: 48,
     paddingHorizontal: Spacing.three,
     fontSize: 16,
   },
