@@ -130,11 +130,11 @@ build-flow/
 
 ### Fase 0 — Setup
 
-- [ ] 0.1 Crear proyecto Expo (TypeScript) y limpiar boilerplate
-- [ ] 0.2 Configurar Expo Router y estructura de carpetas base
-- [ ] 0.3 Instalar dependencias (expo-sqlite, datetimepicker, zustand, expo-file-system, expo-sharing)
-- [ ] 0.4 Configurar tsconfig estricto y lint/format básico
-- [ ] 0.5 Push inicial al repo
+- [x] 0.1 Crear proyecto Expo (TypeScript) y limpiar boilerplate
+- [x] 0.2 Configurar Expo Router y estructura de carpetas base
+- [x] 0.3 Instalar dependencias (expo-sqlite, datetimepicker, zustand, expo-file-system, expo-sharing)
+- [x] 0.4 Configurar tsconfig estricto y lint/format básico
+- [x] 0.5 Push inicial al repo
 
 ### Fase 1 — Capa de datos
 
