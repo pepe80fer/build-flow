@@ -205,12 +205,12 @@ Fotos: `expo-image-picker` (cámara/galería) + copiar el archivo a una carpeta 
 
 ### Fase 8 — Filtros/búsqueda y fotos
 
-- [ ] 8.1 Buscador de texto (por nota) + filtro por categoría en la lista de gastos
-- [ ] 8.2 Migración `002`: columna `photo_uri` en `expenses`; actualizar tipos y repositorio
-- [ ] 8.3 Utilidad de almacenamiento de fotos (copiar a carpeta persistente, borrar al reemplazar/eliminar)
-- [ ] 8.4 Componente para tomar foto / elegir de galería / ver / quitar, integrado en el formulario de gasto
-- [ ] 8.5 Miniatura de foto en la lista y detalle de gastos
-- [ ] 8.6 Eliminar el archivo de foto al eliminar el gasto (evitar huérfanos)
+- [x] 8.1 Buscador de texto (por nota) + filtro por categoría en la lista de gastos
+- [x] 8.2 Migración `002`: columna `photo_uri` en `expenses`; actualizar tipos y repositorio
+- [x] 8.3 Utilidad de almacenamiento de fotos (copiar a carpeta persistente, borrar al reemplazar/eliminar)
+- [x] 8.4 Componente para tomar foto / elegir de galería / ver / quitar, integrado en el formulario de gasto
+- [x] 8.5 Miniatura de foto en la lista y detalle de gastos
+- [x] 8.6 Eliminar el archivo de foto al eliminar el gasto (evitar huérfanos)
 - [ ] 8.7 Validación en dispositivo Android real
 
 ## 8. Entregas futuras (fuera de alcance de este trabajo)

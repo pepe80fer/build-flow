@@ -6,6 +6,8 @@ import type { SQLiteDatabase } from 'expo-sqlite';
 
 import { getAvailableBudget, getTotalBudget, getTotalSpent } from '../src/domain/calculations';
 import { initializeDatabase } from '../src/db/client';
+import { LATEST_DATABASE_VERSION, runMigrations } from '../src/db/migrations';
+import { MIGRATION_001_INIT } from '../src/db/migrations/001_init';
 import { DEFAULT_CATEGORIES } from '../src/db/seed';
 import {
   addBudgetEntry,
@@ -17,6 +19,7 @@ import { listCategories } from '../src/repositories/categoriesRepo';
 import {
   addExpense,
   deleteExpense,
+  getExpenseById,
   listExpenses,
   updateExpense,
 } from '../src/repositories/expensesRepo';
@@ -40,6 +43,58 @@ function assertEqual(actual: unknown, expected: unknown, label: string): void {
 }
 
 async function main(): Promise<void> {
+  console.log('0. Migración incremental: v1 (ya instalada) -> v2 preserva datos existentes');
+  // Simula un teléfono que ya tiene la app instalada en la versión anterior
+  // (solo esquema v1, con datos reales guardados), para asegurar que la
+  // migración 002 (columna photo_uri) no rompe ni pierde nada al aplicarse
+  // sobre una base existente — a diferencia del resto de este smoke test,
+  // que siempre arranca desde una base nueva vía initializeDatabase.
+  const legacyDb = createNodeSqliteAdapter(':memory:') as unknown as SQLiteDatabase;
+  await legacyDb.execAsync('PRAGMA foreign_keys = ON');
+  await legacyDb.execAsync(MIGRATION_001_INIT);
+  await legacyDb.execAsync('PRAGMA user_version = 1');
+
+  const legacyProject = await legacyDb.runAsync(
+    "INSERT INTO projects (name, type, currency) VALUES ('Mi Casa', 'construction', 'COP')",
+  );
+  const legacyProjectId = legacyProject.lastInsertRowId;
+  const legacyCategory = await legacyDb.runAsync(
+    `INSERT INTO categories (project_id, name, is_default, sort_order) VALUES (${legacyProjectId}, 'Materiales', 1, 0)`,
+  );
+  const legacyCategoryId = legacyCategory.lastInsertRowId;
+  const legacyExpense = await legacyDb.runAsync(
+    `INSERT INTO expenses (project_id, category_id, date, amount, note)
+     VALUES (${legacyProjectId}, ${legacyCategoryId}, '2026-01-20', 500000, 'Gasto de antes de la migración')`,
+  );
+  const legacyExpenseId = legacyExpense.lastInsertRowId;
+
+  await runMigrations(legacyDb);
+  const versionAfterMigration = await legacyDb.getFirstAsync<{ user_version: number }>(
+    'PRAGMA user_version',
+  );
+  assertEqual(
+    versionAfterMigration?.user_version,
+    LATEST_DATABASE_VERSION,
+    'user_version llega a la última versión tras migrar desde v1',
+  );
+
+  const migratedExpense = await getExpenseById(legacyDb, legacyExpenseId);
+  assertEqual(
+    migratedExpense?.amount,
+    500000,
+    'el gasto anterior a la migración conserva su monto',
+  );
+  assertEqual(migratedExpense?.note, 'Gasto de antes de la migración', 'y su nota');
+  assertEqual(migratedExpense?.photoUri, null, 'y su photo_uri nueva columna arranca en null');
+
+  await updateExpense(legacyDb, legacyExpenseId, { photoUri: 'file:///receipts/example.jpg' });
+  const expenseWithPhoto = await getExpenseById(legacyDb, legacyExpenseId);
+  assertEqual(
+    expenseWithPhoto?.photoUri,
+    'file:///receipts/example.jpg',
+    'se puede guardar una foto en un gasto migrado desde v1',
+  );
+
   const db = createNodeSqliteAdapter(':memory:') as unknown as SQLiteDatabase;
 
   console.log('1. Inicialización (migraciones + seed)');

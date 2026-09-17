@@ -9,6 +9,7 @@ interface ExpenseRow {
   date: string;
   amount: number;
   note: string | null;
+  photo_uri: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -21,6 +22,7 @@ function mapRow(row: ExpenseRow): Expense {
     date: row.date,
     amount: row.amount,
     note: row.note,
+    photoUri: row.photo_uri,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -43,14 +45,15 @@ export async function getExpenseById(db: SQLiteDatabase, id: number): Promise<Ex
 
 export async function addExpense(db: SQLiteDatabase, input: NewExpenseInput): Promise<number> {
   const result = await db.runAsync(
-    `INSERT INTO expenses (project_id, category_id, date, amount, note)
-     VALUES ($projectId, $categoryId, $date, $amount, $note)`,
+    `INSERT INTO expenses (project_id, category_id, date, amount, note, photo_uri)
+     VALUES ($projectId, $categoryId, $date, $amount, $note, $photoUri)`,
     {
       $projectId: input.projectId,
       $categoryId: input.categoryId,
       $date: input.date,
       $amount: input.amount,
       $note: input.note ?? null,
+      $photoUri: input.photoUri ?? null,
     },
   );
   return result.lastInsertRowId;
@@ -79,6 +82,10 @@ export async function updateExpense(
   if (patch.note !== undefined) {
     fields.push('note = $note');
     params.$note = patch.note;
+  }
+  if (patch.photoUri !== undefined) {
+    fields.push('photo_uri = $photoUri');
+    params.$photoUri = patch.photoUri;
   }
   if (fields.length === 0) {
     return;

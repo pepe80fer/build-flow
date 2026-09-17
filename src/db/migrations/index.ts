@@ -1,11 +1,12 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
 import { MIGRATION_001_INIT } from './001_init';
+import { MIGRATION_002_ADD_EXPENSE_PHOTO } from './002_add_expense_photo';
 
 // Cada entrada es el SQL para llegar a esa versión de esquema (índice 0 -> versión 1).
-// Para agregar cambios futuros (ej. columna `photo_uri` en `expenses` para la Entrega 2),
-// se agrega un nuevo archivo `00N_algo.ts` y se agrega aquí al final del arreglo.
-const MIGRATIONS: string[] = [MIGRATION_001_INIT];
+// Para agregar cambios futuros, se agrega un nuevo archivo `00N_algo.ts` y se
+// agrega aquí al final del arreglo.
+const MIGRATIONS: string[] = [MIGRATION_001_INIT, MIGRATION_002_ADD_EXPENSE_PHOTO];
 
 export const LATEST_DATABASE_VERSION = MIGRATIONS.length;
 

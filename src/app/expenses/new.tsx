@@ -27,6 +27,7 @@ export default function NewExpenseScreen() {
     amountText: '',
     categoryId: null,
     note: '',
+    photoUri: null,
   });
 
   if (!project || loadingCategories) {
@@ -61,6 +62,7 @@ export default function NewExpenseScreen() {
         date: toISODateString(values.date),
         amount: toCents(amountNumber),
         note: values.note.trim() ? values.note.trim() : null,
+        photoUri: values.photoUri,
       });
       router.back();
     } catch (error) {

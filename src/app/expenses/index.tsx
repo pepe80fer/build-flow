@@ -1,5 +1,7 @@
+import { Image } from 'expo-image';
 import { Link, useRouter } from 'expo-router';
-import { Alert, FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { Alert, FlatList, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -15,8 +17,8 @@ import { alertUnexpectedError } from '@/utils/errors';
 import { buildExpensesCsv, shareCsv } from '@/utils/export';
 import { formatAmount } from '@/utils/money';
 
-// Lista de gastos (orden por fecha desc). Cada fila lleva a editarla en
-// src/app/expenses/[id].tsx.
+// Lista de gastos (orden por fecha desc), con buscador por nota y filtro
+// por categoría. Cada fila lleva a editarla en src/app/expenses/[id].tsx.
 export default function ExpensesScreen() {
   const router = useRouter();
   const theme = useTheme();
@@ -24,17 +26,33 @@ export default function ExpensesScreen() {
   const { expenses, loading } = useExpenses(project?.id);
   const { categories } = useCategories(project?.id);
 
+  const [searchText, setSearchText] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState<number | null>(null);
+
   function categoryName(categoryId: number): string {
     return categories.find((category) => category.id === categoryId)?.name ?? '—';
   }
 
+  const filteredExpenses = useMemo(() => {
+    const normalizedSearch = searchText.trim().toLowerCase();
+    return expenses.filter((expense) => {
+      if (categoryFilter !== null && expense.categoryId !== categoryFilter) {
+        return false;
+      }
+      if (normalizedSearch && !(expense.note ?? '').toLowerCase().includes(normalizedSearch)) {
+        return false;
+      }
+      return true;
+    });
+  }, [expenses, searchText, categoryFilter]);
+
   async function handleExport() {
-    if (expenses.length === 0) {
-      Alert.alert('Nada que exportar', 'Todavía no hay gastos registrados.');
+    if (filteredExpenses.length === 0) {
+      Alert.alert('Nada que exportar', 'No hay gastos que coincidan con el filtro actual.');
       return;
     }
     try {
-      const csv = buildExpensesCsv(expenses, categories);
+      const csv = buildExpensesCsv(filteredExpenses, categories);
       await shareCsv(`gastos-${toISODateString(new Date())}.csv`, csv);
     } catch (error) {
       alertUnexpectedError('No se pudo exportar', error);
@@ -47,16 +65,21 @@ export default function ExpensesScreen() {
         onPress={() => router.push(`/expenses/${item.id}`)}
         style={[styles.row, { backgroundColor: theme.backgroundElement }]}
       >
-        <View style={styles.rowHeader}>
-          <ThemedText type="smallBold">{categoryName(item.categoryId)}</ThemedText>
-          <ThemedText type="smallBold">
-            {formatAmount(item.amount, project?.currency ?? 'COP')}
+        {item.photoUri && (
+          <Image source={{ uri: item.photoUri }} style={styles.rowThumbnail} contentFit="cover" />
+        )}
+        <View style={styles.rowContent}>
+          <View style={styles.rowHeader}>
+            <ThemedText type="smallBold">{categoryName(item.categoryId)}</ThemedText>
+            <ThemedText type="smallBold">
+              {formatAmount(item.amount, project?.currency ?? 'COP')}
+            </ThemedText>
+          </View>
+          <ThemedText type="small" themeColor="textSecondary">
+            {item.date}
           </ThemedText>
+          {item.note ? <ThemedText type="small">{item.note}</ThemedText> : null}
         </View>
-        <ThemedText type="small" themeColor="textSecondary">
-          {item.date}
-        </ThemedText>
-        {item.note ? <ThemedText type="small">{item.note}</ThemedText> : null}
       </Pressable>
     );
   }
@@ -76,6 +99,38 @@ export default function ExpensesScreen() {
           </View>
         </View>
 
+        {expenses.length > 0 && (
+          <>
+            <TextInput
+              value={searchText}
+              onChangeText={setSearchText}
+              placeholder="Buscar por nota…"
+              placeholderTextColor={theme.textSecondary}
+              style={[
+                styles.searchInput,
+                { color: theme.text, backgroundColor: theme.backgroundElement },
+              ]}
+            />
+            <View style={styles.categoryFilterRow}>
+              {categories.map((category) => (
+                <Pressable
+                  key={category.id}
+                  onPress={() =>
+                    setCategoryFilter((current) => (current === category.id ? null : category.id))
+                  }
+                  style={[
+                    styles.categoryChip,
+                    { backgroundColor: theme.backgroundElement },
+                    categoryFilter === category.id && { backgroundColor: theme.backgroundSelected },
+                  ]}
+                >
+                  <ThemedText type="small">{category.name}</ThemedText>
+                </Pressable>
+              ))}
+            </View>
+          </>
+        )}
+
         {!loading && expenses.length === 0 && (
           <ThemedView type="backgroundElement" style={styles.emptyState}>
             <ThemedText type="smallBold">Todavía no hay gastos registrados.</ThemedText>
@@ -85,8 +140,14 @@ export default function ExpensesScreen() {
           </ThemedView>
         )}
 
+        {!loading && expenses.length > 0 && filteredExpenses.length === 0 && (
+          <ThemedView type="backgroundElement" style={styles.emptyState}>
+            <ThemedText type="smallBold">Ningún gasto coincide con el filtro.</ThemedText>
+          </ThemedView>
+        )}
+
         <FlatList
-          data={expenses}
+          data={filteredExpenses}
           keyExtractor={(item) => String(item.id)}
           renderItem={renderItem}
           contentContainerStyle={styles.list}
@@ -118,6 +179,22 @@ const styles = StyleSheet.create({
   headerActionButton: {
     paddingVertical: Spacing.two,
   },
+  searchInput: {
+    borderRadius: Spacing.two,
+    minHeight: 48,
+    paddingHorizontal: Spacing.three,
+    fontSize: 16,
+  },
+  categoryFilterRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.two,
+  },
+  categoryChip: {
+    borderRadius: Spacing.four,
+    paddingVertical: Spacing.one,
+    paddingHorizontal: Spacing.three,
+  },
   emptyState: {
     borderRadius: Spacing.three,
     padding: Spacing.three,
@@ -127,8 +204,18 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   row: {
+    flexDirection: 'row',
     borderRadius: Spacing.three,
     padding: Spacing.three,
+    gap: Spacing.three,
+  },
+  rowThumbnail: {
+    width: 48,
+    height: 48,
+    borderRadius: Spacing.two,
+  },
+  rowContent: {
+    flex: 1,
     gap: Spacing.half,
   },
   rowHeader: {

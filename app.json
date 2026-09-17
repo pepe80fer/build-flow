@@ -28,6 +28,15 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
+      ],
+      "expo-image",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Permite a build-flow acceder a tus fotos para adjuntar el recibo de un gasto.",
+          "cameraPermission": "Permite a build-flow usar la cámara para tomar la foto de un recibo.",
+          "microphonePermission": false
+        }
       ]
     ],
     "experiments": {

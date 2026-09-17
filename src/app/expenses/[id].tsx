@@ -14,6 +14,7 @@ import { deleteExpense, getExpenseById, updateExpense } from '@/repositories/exp
 import { fromISODateString, toISODateString } from '@/utils/date';
 import { alertUnexpectedError } from '@/utils/errors';
 import { fromCents, toCents } from '@/utils/money';
+import { deleteReceiptPhoto } from '@/utils/photos';
 
 // Editar/eliminar un gasto existente.
 export default function EditExpenseScreen() {
@@ -30,7 +31,13 @@ export default function EditExpenseScreen() {
     amountText: '',
     categoryId: null,
     note: '',
+    photoUri: null,
   });
+  // La foto que estaba guardada en la BD al abrir la pantalla. Se usa para
+  // saber si hay que borrar el archivo (se reemplazó/quitó la foto, o se
+  // eliminó el gasto completo) — nunca se borra por solo tocar "Quitar" en
+  // el formulario, sino hasta que el cambio se confirma.
+  const [originalPhotoUri, setOriginalPhotoUri] = useState<string | null>(null);
 
   useEffect(() => {
     let isActive = true;
@@ -51,7 +58,9 @@ export default function EditExpenseScreen() {
           amountText: String(fromCents(expense.amount)),
           categoryId: expense.categoryId,
           note: expense.note ?? '',
+          photoUri: expense.photoUri,
         });
+        setOriginalPhotoUri(expense.photoUri);
         setStatus('ready');
       } catch (error) {
         if (isActive) {
@@ -93,7 +102,11 @@ export default function EditExpenseScreen() {
         date: toISODateString(values.date),
         amount: toCents(amountNumber),
         note: values.note.trim() ? values.note.trim() : null,
+        photoUri: values.photoUri,
       });
+      if (originalPhotoUri && originalPhotoUri !== values.photoUri) {
+        deleteReceiptPhoto(originalPhotoUri);
+      }
       router.back();
     } catch (error) {
       alertUnexpectedError('No se pudo guardar el gasto', error);
@@ -109,6 +122,9 @@ export default function EditExpenseScreen() {
         onPress: async () => {
           try {
             await deleteExpense(db, expenseId);
+            if (originalPhotoUri) {
+              deleteReceiptPhoto(originalPhotoUri);
+            }
             router.back();
           } catch (error) {
             alertUnexpectedError('No se pudo eliminar el gasto', error);

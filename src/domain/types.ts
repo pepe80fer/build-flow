@@ -46,6 +46,8 @@ export interface Expense {
   /** Monto en centavos. */
   amount: number;
   note: string | null;
+  /** URI del archivo de foto del recibo, copiado a una carpeta persistente de la app. */
+  photoUri: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -70,6 +72,7 @@ export interface NewExpenseInput {
   date: string;
   amount: number;
   note?: string | null;
+  photoUri?: string | null;
 }
 
 export interface UpdateExpenseInput {
@@ -77,4 +80,5 @@ export interface UpdateExpenseInput {
   date?: string;
   amount?: number;
   note?: string | null;
+  photoUri?: string | null;
 }

@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native
 import { AmountField } from '@/components/AmountField';
 import { CategoryPicker } from '@/components/CategoryPicker';
 import { DateField } from '@/components/DateField';
+import { PhotoPicker } from '@/components/PhotoPicker';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import type { Category } from '@/domain/types';
@@ -13,6 +14,7 @@ export interface ExpenseFormValues {
   amountText: string;
   categoryId: number | null;
   note: string;
+  photoUri: string | null;
 }
 
 interface ExpenseFormProps {
@@ -75,6 +77,11 @@ export function ExpenseForm({
           multiline
         />
       </View>
+
+      <PhotoPicker
+        photoUri={values.photoUri}
+        onChange={(photoUri) => onChangeValues({ ...values, photoUri })}
+      />
 
       <Pressable style={[styles.submitButton, { backgroundColor: theme.text }]} onPress={onSubmit}>
         <ThemedText style={{ color: theme.background }} type="smallBold">
