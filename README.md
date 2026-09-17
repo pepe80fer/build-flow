@@ -11,12 +11,29 @@ El plan de desarrollo completo (decisiones, modelo de datos, fases y tareas) est
 
 ## Cómo correr el proyecto
 
+### En tu teléfono con Expo Go (recomendado, no requiere Android SDK)
+
+1. Instala la app **Expo Go** desde Play Store en tu teléfono Android.
+2. Conecta el teléfono a la misma red WiFi que tu computadora.
+3. Corre:
+   ```bash
+   npm install
+   npm start
+   ```
+4. Escanea el código QR que aparece en la terminal con Expo Go (botón "Scan QR code").
+
+Si el teléfono y la PC no pueden verse en la misma red (ej. WiFi de invitados, VPN), usa `npx expo start --tunnel` en su lugar — es más lento pero no depende de estar en la misma red.
+
+### En un emulador Android en tu PC
+
+Requiere tener instalado Android Studio + Android SDK, con la variable de entorno `ANDROID_HOME` configurada y un emulador ya creado (AVD) o un dispositivo conectado por USB con `adb`. Con eso listo:
+
 ```bash
 npm install
 npm run android
 ```
 
-Esto abre las opciones para correr la app en un emulador Android o en Expo Go en tu teléfono.
+Sin esa configuración, este comando falla buscando `adb`; usa la opción de Expo Go arriba en su lugar.
 
 ## Estructura
 
