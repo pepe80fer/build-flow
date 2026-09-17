@@ -1,6 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as DocumentPicker from 'expo-document-picker';
-import { File } from 'expo-file-system';
+import { readAsStringAsync } from 'expo-file-system/legacy';
 import { Link, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Alert, FlatList, Pressable, StyleSheet, View } from 'react-native';
@@ -59,7 +59,7 @@ export default function BudgetScreen() {
       if (picked.canceled || !picked.assets?.[0]) {
         return;
       }
-      content = await new File(picked.assets[0].uri).text();
+      content = await readAsStringAsync(picked.assets[0].uri, { encoding: 'utf8' });
     } catch (error) {
       alertUnexpectedError('No se pudo leer el archivo', error);
       return;
