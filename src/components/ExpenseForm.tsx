@@ -23,6 +23,9 @@ interface ExpenseFormProps {
   onChangeValues: (values: ExpenseFormValues) => void;
   currency: string;
   onSubmit: () => void;
+  onCancel: () => void;
+  /** false = todavía no hay cambios que guardar: se oculta "Guardar" y el botón de salir dice "Volver". */
+  canSubmit: boolean;
   onDelete?: () => void;
   submitLabel?: string;
 }
@@ -35,6 +38,8 @@ export function ExpenseForm({
   onChangeValues,
   currency,
   onSubmit,
+  onCancel,
+  canSubmit,
   onDelete,
   submitLabel = 'Guardar',
 }: ExpenseFormProps) {
@@ -83,11 +88,24 @@ export function ExpenseForm({
         onChange={(photoUri) => onChangeValues({ ...values, photoUri })}
       />
 
-      <Pressable style={[styles.submitButton, { backgroundColor: theme.text }]} onPress={onSubmit}>
-        <ThemedText style={{ color: theme.background }} type="smallBold">
-          {submitLabel}
-        </ThemedText>
-      </Pressable>
+      <View style={styles.actionsRow}>
+        <Pressable
+          onPress={onCancel}
+          style={[styles.cancelButton, { backgroundColor: theme.backgroundElement }]}
+        >
+          <ThemedText type="smallBold">{canSubmit ? 'Cancelar' : 'Volver'}</ThemedText>
+        </Pressable>
+        {canSubmit && (
+          <Pressable
+            style={[styles.submitButton, { backgroundColor: theme.text }]}
+            onPress={onSubmit}
+          >
+            <ThemedText style={{ color: theme.background }} type="smallBold">
+              {submitLabel}
+            </ThemedText>
+          </Pressable>
+        )}
+      </View>
 
       {onDelete && (
         <Pressable onPress={onDelete} style={styles.deleteButton}>
@@ -117,11 +135,22 @@ const styles = StyleSheet.create({
     minHeight: 80,
     textAlignVertical: 'top',
   },
-  submitButton: {
+  actionsRow: {
+    flexDirection: 'row',
+    gap: Spacing.two,
+    marginTop: Spacing.two,
+  },
+  cancelButton: {
+    flex: 1,
     borderRadius: Spacing.two,
     paddingVertical: Spacing.three,
     alignItems: 'center',
-    marginTop: Spacing.two,
+  },
+  submitButton: {
+    flex: 1,
+    borderRadius: Spacing.two,
+    paddingVertical: Spacing.three,
+    alignItems: 'center',
   },
   deleteButton: {
     alignItems: 'center',

@@ -47,6 +47,21 @@ export default function BudgetEntryFormScreen() {
   const [amountText, setAmountText] = useState('');
   const [note, setNote] = useState('');
   const [currencyCode, setCurrencyCode] = useState('');
+  // Snapshot de los valores tal como estaban guardados al abrir la pantalla
+  // (solo aplica al editar). Se usa para mostrar/ocultar "Guardar" y
+  // decidir la etiqueta "Volver"/"Cancelar" del otro botón.
+  const [originalValues, setOriginalValues] = useState<{
+    date: Date;
+    amountText: string;
+    note: string;
+  } | null>(null);
+
+  const isDirty =
+    !isEditing ||
+    originalValues === null ||
+    toISODateString(date) !== toISODateString(originalValues.date) ||
+    amountText !== originalValues.amountText ||
+    note !== originalValues.note;
 
   useEffect(() => {
     if (!project) {
@@ -68,9 +83,13 @@ export default function BudgetEntryFormScreen() {
             return;
           }
           setIsInitial(entry.type === 'initial');
-          setDate(fromISODateString(entry.date));
-          setAmountText(String(fromCents(entry.amount)));
-          setNote(entry.note ?? '');
+          const loadedDate = fromISODateString(entry.date);
+          const loadedAmountText = String(fromCents(entry.amount));
+          const loadedNote = entry.note ?? '';
+          setDate(loadedDate);
+          setAmountText(loadedAmountText);
+          setNote(loadedNote);
+          setOriginalValues({ date: loadedDate, amountText: loadedAmountText, note: loadedNote });
         } else {
           const initialEntry = await getInitialBudgetEntry(db, project.id);
           if (isActive) {
@@ -248,14 +267,24 @@ export default function BudgetEntryFormScreen() {
             />
           </View>
 
-          <Pressable
-            style={[styles.submitButton, { backgroundColor: theme.text }]}
-            onPress={handleSubmit}
-          >
-            <ThemedText style={{ color: theme.background }} type="smallBold">
-              Guardar
-            </ThemedText>
-          </Pressable>
+          <View style={styles.actionsRow}>
+            <Pressable
+              onPress={() => router.back()}
+              style={[styles.cancelButton, { backgroundColor: theme.backgroundElement }]}
+            >
+              <ThemedText type="smallBold">{isDirty ? 'Cancelar' : 'Volver'}</ThemedText>
+            </Pressable>
+            {isDirty && (
+              <Pressable
+                style={[styles.submitButton, { backgroundColor: theme.text }]}
+                onPress={handleSubmit}
+              >
+                <ThemedText style={{ color: theme.background }} type="smallBold">
+                  Guardar
+                </ThemedText>
+              </Pressable>
+            )}
+          </View>
 
           {isEditing && (
             <Pressable onPress={handleDelete} style={styles.deleteButton}>
@@ -294,11 +323,22 @@ const styles = StyleSheet.create({
     minHeight: 80,
     textAlignVertical: 'top',
   },
-  submitButton: {
+  actionsRow: {
+    flexDirection: 'row',
+    gap: Spacing.two,
+    marginTop: Spacing.two,
+  },
+  cancelButton: {
+    flex: 1,
     borderRadius: Spacing.two,
     paddingVertical: Spacing.three,
     alignItems: 'center',
-    marginTop: Spacing.two,
+  },
+  submitButton: {
+    flex: 1,
+    borderRadius: Spacing.two,
+    paddingVertical: Spacing.three,
+    alignItems: 'center',
   },
   deleteButton: {
     alignItems: 'center',

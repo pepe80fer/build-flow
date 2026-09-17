@@ -33,11 +33,21 @@ export default function EditExpenseScreen() {
     note: '',
     photoUri: null,
   });
-  // La foto que estaba guardada en la BD al abrir la pantalla. Se usa para
-  // saber si hay que borrar el archivo (se reemplazó/quitó la foto, o se
-  // eliminó el gasto completo) — nunca se borra por solo tocar "Quitar" en
-  // el formulario, sino hasta que el cambio se confirma.
-  const [originalPhotoUri, setOriginalPhotoUri] = useState<string | null>(null);
+  // Snapshot de los valores tal como estaban guardados en la BD al abrir la
+  // pantalla. Se usa para: (1) saber si hay cambios sin guardar (para
+  // mostrar/ocultar "Guardar" y decidir la etiqueta "Volver"/"Cancelar"), y
+  // (2) saber si hay que borrar el archivo de foto anterior — nunca se
+  // borra por solo tocar "Quitar" en el formulario, sino hasta que el
+  // cambio se confirma con "Guardar" o con "Eliminar" el gasto completo.
+  const [originalValues, setOriginalValues] = useState<ExpenseFormValues | null>(null);
+
+  const isDirty =
+    originalValues !== null &&
+    (toISODateString(values.date) !== toISODateString(originalValues.date) ||
+      values.amountText !== originalValues.amountText ||
+      values.categoryId !== originalValues.categoryId ||
+      values.note !== originalValues.note ||
+      values.photoUri !== originalValues.photoUri);
 
   useEffect(() => {
     let isActive = true;
@@ -53,14 +63,15 @@ export default function EditExpenseScreen() {
           router.back();
           return;
         }
-        setValues({
+        const loadedValues: ExpenseFormValues = {
           date: fromISODateString(expense.date),
           amountText: String(fromCents(expense.amount)),
           categoryId: expense.categoryId,
           note: expense.note ?? '',
           photoUri: expense.photoUri,
-        });
-        setOriginalPhotoUri(expense.photoUri);
+        };
+        setValues(loadedValues);
+        setOriginalValues(loadedValues);
         setStatus('ready');
       } catch (error) {
         if (isActive) {
@@ -104,8 +115,8 @@ export default function EditExpenseScreen() {
         note: values.note.trim() ? values.note.trim() : null,
         photoUri: values.photoUri,
       });
-      if (originalPhotoUri && originalPhotoUri !== values.photoUri) {
-        deleteReceiptPhoto(originalPhotoUri);
+      if (originalValues?.photoUri && originalValues.photoUri !== values.photoUri) {
+        deleteReceiptPhoto(originalValues.photoUri);
       }
       router.back();
     } catch (error) {
@@ -122,8 +133,8 @@ export default function EditExpenseScreen() {
         onPress: async () => {
           try {
             await deleteExpense(db, expenseId);
-            if (originalPhotoUri) {
-              deleteReceiptPhoto(originalPhotoUri);
+            if (originalValues?.photoUri) {
+              deleteReceiptPhoto(originalValues.photoUri);
             }
             router.back();
           } catch (error) {
@@ -143,6 +154,8 @@ export default function EditExpenseScreen() {
           onChangeValues={setValues}
           currency={project.currency}
           onSubmit={handleSubmit}
+          onCancel={() => router.back()}
+          canSubmit={isDirty}
           onDelete={handleDelete}
         />
       </SafeAreaView>

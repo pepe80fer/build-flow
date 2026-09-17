@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { Link, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Alert, FlatList, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Alert, FlatList, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -100,7 +100,7 @@ export default function ExpensesScreen() {
         </View>
 
         {expenses.length > 0 && (
-          <>
+          <View style={styles.filters}>
             <TextInput
               value={searchText}
               onChangeText={setSearchText}
@@ -111,7 +111,21 @@ export default function ExpensesScreen() {
                 { color: theme.text, backgroundColor: theme.backgroundElement },
               ]}
             />
-            <View style={styles.categoryFilterRow}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.categoryFilterRow}
+            >
+              <Pressable
+                onPress={() => setCategoryFilter(null)}
+                style={[
+                  styles.categoryChip,
+                  { backgroundColor: theme.backgroundElement },
+                  categoryFilter === null && { backgroundColor: theme.backgroundSelected },
+                ]}
+              >
+                <ThemedText type="small">Todas</ThemedText>
+              </Pressable>
               {categories.map((category) => (
                 <Pressable
                   key={category.id}
@@ -127,8 +141,8 @@ export default function ExpensesScreen() {
                   <ThemedText type="small">{category.name}</ThemedText>
                 </Pressable>
               ))}
-            </View>
-          </>
+            </ScrollView>
+          </View>
         )}
 
         {!loading && expenses.length === 0 && (
@@ -150,7 +164,9 @@ export default function ExpensesScreen() {
           data={filteredExpenses}
           keyExtractor={(item) => String(item.id)}
           renderItem={renderItem}
-          contentContainerStyle={styles.list}
+          style={styles.list}
+          contentContainerStyle={styles.listContent}
+          keyboardShouldPersistTaps="handled"
         />
       </SafeAreaView>
     </ThemedView>
@@ -179,6 +195,9 @@ const styles = StyleSheet.create({
   headerActionButton: {
     paddingVertical: Spacing.two,
   },
+  filters: {
+    gap: Spacing.two,
+  },
   searchInput: {
     borderRadius: Spacing.two,
     minHeight: 48,
@@ -187,12 +206,11 @@ const styles = StyleSheet.create({
   },
   categoryFilterRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: Spacing.two,
   },
   categoryChip: {
     borderRadius: Spacing.four,
-    paddingVertical: Spacing.one,
+    paddingVertical: Spacing.two,
     paddingHorizontal: Spacing.three,
   },
   emptyState: {
@@ -201,6 +219,9 @@ const styles = StyleSheet.create({
     gap: Spacing.half,
   },
   list: {
+    flex: 1,
+  },
+  listContent: {
     gap: Spacing.two,
   },
   row: {

@@ -79,6 +79,8 @@ export default function NewExpenseScreen() {
           onChangeValues={setValues}
           currency={project.currency}
           onSubmit={handleSubmit}
+          onCancel={() => router.back()}
+          canSubmit
         />
       </SafeAreaView>
     </ThemedView>
