@@ -138,12 +138,12 @@ build-flow/
 
 ### Fase 1 — Capa de datos
 
-- [ ] 1.1 Definir esquema SQL inicial (`projects`, `categories`, `budget_entries`, `expenses`)
-- [ ] 1.2 Runner de migraciones simple (`PRAGMA user_version`)
-- [ ] 1.3 Seed inicial: proyecto default + categorías predefinidas de construcción
-- [ ] 1.4 Repositorios CRUD (projectsRepo, categoriesRepo, budgetEntriesRepo, expensesRepo)
-- [ ] 1.5 Funciones de cálculo (`totalBudget`, `totalSpent`, `available`)
-- [ ] 1.6 Smoke test manual de la capa de datos
+- [x] 1.1 Definir esquema SQL inicial (`projects`, `categories`, `budget_entries`, `expenses`)
+- [x] 1.2 Runner de migraciones simple (`PRAGMA user_version`)
+- [x] 1.3 Seed inicial: proyecto default + categorías predefinidas de construcción
+- [x] 1.4 Repositorios CRUD (projectsRepo, categoriesRepo, budgetEntriesRepo, expensesRepo)
+- [x] 1.5 Funciones de cálculo (`totalBudget`, `totalSpent`, `available`)
+- [x] 1.6 Smoke test manual de la capa de datos
 
 ### Fase 2 — Presupuesto
 

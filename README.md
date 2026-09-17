@@ -21,11 +21,12 @@ Esto abre las opciones para correr la app en un emulador Android o en Expo Go en
 ## Estructura
 
 - `src/app/` — pantallas, ruteo por archivos con Expo Router
-- `src/db/` — cliente y migraciones de SQLite (Fase 1)
-- `src/repositories/` — capa de acceso a datos
+- `src/db/` — cliente, migraciones y seed de SQLite
+- `src/repositories/` — capa de acceso a datos (projects, categories, budget_entries, expenses)
 - `src/domain/` — tipos y cálculos (presupuesto, disponible, etc.)
-- `src/store/` — estado de UI con Zustand
+- `src/store/` — estado de UI con Zustand (Fase 2+)
 - `src/components/`, `src/hooks/`, `src/utils/` — piezas compartidas
+- `scripts/` — herramientas de desarrollo (no son parte de la app), ej. el smoke test de la base de datos
 
 ## Scripts
 
@@ -33,3 +34,5 @@ Esto abre las opciones para correr la app en un emulador Android o en Expo Go en
 - `npm run android` — abre en emulador/dispositivo Android
 - `npm run lint` — ESLint
 - `npm run format` — Prettier
+- `npm run typecheck` — TypeScript (app + scripts de desarrollo)
+- `npm run db:smoke` — smoke test manual de la capa de datos (migraciones, seed, repositorios y cálculos) corriendo sobre SQLite en Node, sin necesitar un emulador
