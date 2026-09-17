@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,11 +12,24 @@ import { useActiveProject } from '@/hooks/useActiveProject';
 import { useBudgetSummary } from '@/hooks/useBudgetSummary';
 import { useTheme } from '@/hooks/use-theme';
 
+type IoniconName = keyof typeof Ionicons.glyphMap;
+
+const NAV_ITEMS: {
+  href: '/budget' | '/expenses' | '/reports';
+  label: string;
+  icon: IoniconName;
+}[] = [
+  { href: '/budget', label: 'Ver presupuesto', icon: 'wallet-outline' },
+  { href: '/expenses', label: 'Ver gastos', icon: 'receipt-outline' },
+  { href: '/reports', label: 'Ver reportes', icon: 'stats-chart-outline' },
+];
+
 // Home: resumen de presupuesto (total, gastado, disponible) en tiempo real,
 // con acceso rápido a presupuesto y gastos. Si todavía no hay presupuesto
 // inicial configurado, invita a configurarlo primero.
 export default function HomeScreen() {
   const theme = useTheme();
+  const router = useRouter();
   const { project, loading: loadingProject } = useActiveProject();
   const { summary, loading: loadingSummary } = useBudgetSummary(project?.id);
   const [amountsHidden, setAmountsHidden] = useState(false);
@@ -86,17 +99,21 @@ export default function HomeScreen() {
           </View>
         )}
 
-        <ThemedView type="backgroundElement" style={styles.linkGroup}>
-          <Link href="/budget" style={styles.link}>
-            <ThemedText type="link">Ver presupuesto</ThemedText>
-          </Link>
-          <Link href="/expenses" style={styles.link}>
-            <ThemedText type="link">Ver gastos</ThemedText>
-          </Link>
-          <Link href="/reports" style={styles.link}>
-            <ThemedText type="link">Ver reportes</ThemedText>
-          </Link>
-        </ThemedView>
+        <View style={styles.navGroup}>
+          {NAV_ITEMS.map((item) => (
+            <Pressable
+              key={item.href}
+              onPress={() => router.push(item.href)}
+              style={[styles.navButton, { backgroundColor: theme.backgroundElement }]}
+            >
+              <Ionicons name={item.icon} size={20} color={theme.text} />
+              <ThemedText type="smallBold" style={styles.navButtonLabel}>
+                {item.label}
+              </ThemedText>
+              <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
+            </Pressable>
+          ))}
+        </View>
       </SafeAreaView>
     </ThemedView>
   );
@@ -127,10 +144,19 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
     marginTop: Spacing.one,
   },
-  linkGroup: {
-    borderRadius: Spacing.three,
-    padding: Spacing.three,
+  navGroup: {
     gap: Spacing.two,
+  },
+  navButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+    borderRadius: Spacing.three,
+    paddingVertical: Spacing.three,
+    paddingHorizontal: Spacing.three,
+  },
+  navButtonLabel: {
+    flex: 1,
   },
   link: {
     paddingVertical: Spacing.two,
