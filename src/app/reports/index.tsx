@@ -66,7 +66,7 @@ export default function ReportsScreen() {
   if (!project) {
     return (
       <ThemedView style={styles.container}>
-        <SafeAreaView style={styles.safeArea}>
+        <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
           <ThemedText type="small">Cargando…</ThemedText>
         </SafeAreaView>
       </ThemedView>
@@ -88,7 +88,7 @@ export default function ReportsScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
         <ScrollView contentContainerStyle={styles.content}>
           <ThemedText type="subtitle">Reportes</ThemedText>
 

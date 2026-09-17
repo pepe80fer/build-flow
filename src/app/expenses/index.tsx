@@ -86,7 +86,7 @@ export default function ExpensesScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
         <View style={styles.headerRow}>
           <ThemedText type="subtitle">Gastos</ThemedText>
           <View style={styles.headerActions}>

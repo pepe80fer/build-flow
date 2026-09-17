@@ -33,7 +33,7 @@ export default function NewExpenseScreen() {
   if (!project || loadingCategories) {
     return (
       <ThemedView style={styles.container}>
-        <SafeAreaView style={styles.safeArea}>
+        <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
           <ThemedText type="small">Cargando…</ThemedText>
         </SafeAreaView>
       </ThemedView>
@@ -72,7 +72,7 @@ export default function NewExpenseScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
         <ExpenseForm
           categories={categories}
           values={values}

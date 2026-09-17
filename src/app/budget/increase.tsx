@@ -127,7 +127,7 @@ export default function BudgetEntryFormScreen() {
   if (!project || status === 'loading') {
     return (
       <ThemedView style={styles.container}>
-        <SafeAreaView style={styles.safeArea}>
+        <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
           <ThemedText type="small">Cargando…</ThemedText>
         </SafeAreaView>
       </ThemedView>
@@ -221,7 +221,7 @@ export default function BudgetEntryFormScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
         <ScrollView contentContainerStyle={styles.form}>
           <DateField label="Fecha" value={date} onChange={setDate} />
           <AmountField

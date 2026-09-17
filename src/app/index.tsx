@@ -24,7 +24,7 @@ export default function HomeScreen() {
   if (loadingProject || !project) {
     return (
       <ThemedView style={styles.container}>
-        <SafeAreaView style={styles.safeArea}>
+        <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
           <ThemedText type="small">Cargando…</ThemedText>
         </SafeAreaView>
       </ThemedView>
@@ -35,7 +35,7 @@ export default function HomeScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
         <ThemedText type="title">Casa Huila Ma</ThemedText>
 
         {!loadingSummary && !hasInitialBudget && (
