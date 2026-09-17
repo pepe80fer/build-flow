@@ -211,7 +211,7 @@ Fotos: `expo-image-picker` (cámara/galería) + copiar el archivo a una carpeta 
 - [x] 8.4 Componente para tomar foto / elegir de galería / ver / quitar, integrado en el formulario de gasto
 - [x] 8.5 Miniatura de foto en la lista y detalle de gastos
 - [x] 8.6 Eliminar el archivo de foto al eliminar el gasto (evitar huérfanos)
-- [ ] 8.7 Validación en dispositivo Android real
+- [x] 8.7 Validación en dispositivo Android real
 
 ## 8. Entregas futuras (fuera de alcance de este trabajo)
 
