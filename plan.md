@@ -163,9 +163,9 @@ build-flow/
 
 ### Fase 4 — Exportación / Backup
 
-- [ ] 4.1 Generar CSV de gastos (fecha, monto, categoría, nota)
-- [ ] 4.2 Generar CSV de historial de presupuesto
-- [ ] 4.3 Compartir archivo vía share sheet de Android
+- [x] 4.1 Generar CSV de gastos (fecha, monto, categoría, nota)
+- [x] 4.2 Generar CSV de historial de presupuesto
+- [x] 4.3 Compartir archivo vía share sheet de Android
 
 ### Fase 5 — Pulido UI/UX
 

@@ -1,5 +1,5 @@
 import { Link, useRouter } from 'expo-router';
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -10,6 +10,8 @@ import { useActiveProject } from '@/hooks/useActiveProject';
 import { useCategories } from '@/hooks/useCategories';
 import { useExpenses } from '@/hooks/useExpenses';
 import { useTheme } from '@/hooks/use-theme';
+import { toISODateString } from '@/utils/date';
+import { buildExpensesCsv, shareCsv } from '@/utils/export';
 import { formatAmount } from '@/utils/money';
 
 // Lista de gastos (orden por fecha desc). Cada fila lleva a editarla en
@@ -23,6 +25,22 @@ export default function ExpensesScreen() {
 
   function categoryName(categoryId: number): string {
     return categories.find((category) => category.id === categoryId)?.name ?? '—';
+  }
+
+  async function handleExport() {
+    if (expenses.length === 0) {
+      Alert.alert('Nada que exportar', 'Todavía no hay gastos registrados.');
+      return;
+    }
+    try {
+      const csv = buildExpensesCsv(expenses, categories);
+      await shareCsv(`gastos-${toISODateString(new Date())}.csv`, csv);
+    } catch (error) {
+      Alert.alert(
+        'No se pudo exportar',
+        error instanceof Error ? error.message : 'Intenta de nuevo.',
+      );
+    }
   }
 
   function renderItem({ item }: { item: Expense }) {
@@ -50,9 +68,14 @@ export default function ExpensesScreen() {
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.headerRow}>
           <ThemedText type="subtitle">Gastos</ThemedText>
-          <Link href="/expenses/new">
-            <ThemedText type="linkPrimary">+ Nuevo gasto</ThemedText>
-          </Link>
+          <View style={styles.headerActions}>
+            <Pressable onPress={handleExport}>
+              <ThemedText type="link">Exportar</ThemedText>
+            </Pressable>
+            <Link href="/expenses/new">
+              <ThemedText type="linkPrimary">+ Nuevo gasto</ThemedText>
+            </Link>
+          </View>
         </View>
 
         {!loading && expenses.length === 0 && (
@@ -83,6 +106,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.three,
   },
   list: {
     gap: Spacing.two,

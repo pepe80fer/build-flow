@@ -1,5 +1,5 @@
 import { Link, useRouter } from 'expo-router';
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -9,6 +9,8 @@ import type { BudgetEntry } from '@/domain/types';
 import { useActiveProject } from '@/hooks/useActiveProject';
 import { useBudgetEntries } from '@/hooks/useBudgetEntries';
 import { useTheme } from '@/hooks/use-theme';
+import { toISODateString } from '@/utils/date';
+import { buildBudgetEntriesCsv, shareCsv } from '@/utils/export';
 import { formatAmount } from '@/utils/money';
 
 // Historial completo de movimientos de presupuesto (inicial + incrementos).
@@ -18,6 +20,22 @@ export default function BudgetScreen() {
   const theme = useTheme();
   const { project } = useActiveProject();
   const { entries, loading } = useBudgetEntries(project?.id);
+
+  async function handleExport() {
+    if (entries.length === 0) {
+      Alert.alert('Nada que exportar', 'Todavía no hay movimientos de presupuesto.');
+      return;
+    }
+    try {
+      const csv = buildBudgetEntriesCsv(entries);
+      await shareCsv(`presupuesto-${toISODateString(new Date())}.csv`, csv);
+    } catch (error) {
+      Alert.alert(
+        'No se pudo exportar',
+        error instanceof Error ? error.message : 'Intenta de nuevo.',
+      );
+    }
+  }
 
   function renderItem({ item }: { item: BudgetEntry }) {
     return (
@@ -46,9 +64,14 @@ export default function BudgetScreen() {
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.headerRow}>
           <ThemedText type="subtitle">Presupuesto</ThemedText>
-          <Link href="/budget/increase">
-            <ThemedText type="linkPrimary">+ Incremento</ThemedText>
-          </Link>
+          <View style={styles.headerActions}>
+            <Pressable onPress={handleExport}>
+              <ThemedText type="link">Exportar</ThemedText>
+            </Pressable>
+            <Link href="/budget/increase">
+              <ThemedText type="linkPrimary">+ Incremento</ThemedText>
+            </Link>
+          </View>
         </View>
 
         {!loading && entries.length === 0 && (
@@ -79,6 +102,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.three,
   },
   list: {
     gap: Spacing.two,
