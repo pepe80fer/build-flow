@@ -213,13 +213,23 @@ Fotos: `expo-image-picker` (cámara/galería) + copiar el archivo a una carpeta 
 - [x] 8.6 Eliminar el archivo de foto al eliminar el gasto (evitar huérfanos)
 - [x] 8.7 Validación en dispositivo Android real
 
-## 8. Entregas futuras (fuera de alcance de este trabajo)
+## 8. Entrega 3 — Multi-proyecto con tipos y categorías personalizadas
 
-**Entrega 2 (backlog, sin comprometer aún):**
+Explorada a pedido del usuario, sin necesidad inmediata de un segundo proyecto — queda documentada para decidir cuándo construirla. El modelo de datos (`projects.type`, `categories.project_id`) ya soporta esto desde la Fase 1; no requiere migración de esquema, solo repositorios/UI/navegación nuevos.
+
+Compatibilidad: el proyecto "Mi Casa" existente (con datos reales del usuario) se preserva exactamente igual y queda como proyecto activo inicial — no se duplica ni se pierde nada al actualizar.
+
+### Fase 9 — Multi-proyecto y categorías personalizadas
+
+- [ ] 9.1 Persistir el proyecto activo entre sesiones (hoy siempre se toma "el primero que exista")
+- [ ] 9.2 Repositorio de proyectos: `listProjects`, `createProject` (siembra categorías si es tipo construcción), `archiveProject`
+- [ ] 9.3 Repositorio de categorías: `addCategory`, `updateCategory`, `deleteCategory` (protegido si ya tiene gastos asociados)
+- [ ] 9.4 Pantalla "Proyectos": listar, crear nuevo (nombre, tipo, moneda), cambiar el activo
+- [ ] 9.5 Pantalla "Categorías" por proyecto: listar, agregar, editar, eliminar
+- [ ] 9.6 Actualizar Home/navegación para mostrar y cambiar el proyecto activo
+- [ ] 9.7 Validación en dispositivo Android real (crear un proyecto genérico, categorías propias, cambiar entre proyectos sin perder datos)
+
+## 9. Backlog (sin comprometer aún)
 
 - PIN/biometría para abrir la app
-
-**Entrega 3 (a futuro, no ahora):**
-
-- Generalizar el modelo para soportar múltiples "proyectos" de cualquier tipo (la construcción de vivienda sería un caso particular, vía el campo `type`)
-- Evaluar necesidad de backend/sincronización si se vuelve comercial
+- Backend/sincronización — en pausa mientras el uso siga siendo personal (evaluar si se vuelve comercial o se necesita compartir datos entre dispositivos)
