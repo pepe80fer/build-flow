@@ -38,6 +38,14 @@
           "cameraPermission": "Permite a Casa Huila Ma usar la cámara para tomar la foto de un recibo.",
           "microphonePermission": false
         }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Permite a Casa Huila Ma acceder a tus fotos.",
+          "savePhotosPermission": "Permite a Casa Huila Ma guardar en tu galería una copia de las fotos de recibos que tomes, como respaldo.",
+          "granularPermissions": ["photo"]
+        }
       ]
     ],
     "experiments": {

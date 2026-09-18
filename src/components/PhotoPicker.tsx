@@ -1,5 +1,6 @@
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
+import * as MediaLibrary from 'expo-media-library';
 import { useState } from 'react';
 import { Alert, Modal, Pressable, StyleSheet, View } from 'react-native';
 
@@ -52,6 +53,23 @@ export function PhotoPicker({ photoUri, onChange }: PhotoPickerProps) {
     try {
       const savedUri = await saveReceiptPhoto(result.assets[0].uri);
       onChange(savedUri);
+
+      // La foto que vive dentro de la app no tiene ningún otro respaldo. Si
+      // se acaba de tomar con la cámara (no si ya existía en la galería),
+      // guardamos también una copia ahí — así, si el teléfono ya respalda
+      // la galería (Google Fotos, etc.), la foto del recibo queda protegida
+      // sin que la app tenga que hacer nada más. No es crítico: si falla, la
+      // foto sigue quedando adjunta al gasto igual.
+      if (source === 'camera') {
+        try {
+          const mediaPermission = await MediaLibrary.requestPermissionsAsync(true);
+          if (mediaPermission.granted) {
+            await MediaLibrary.saveToLibraryAsync(result.assets[0].uri);
+          }
+        } catch (backupError) {
+          console.error('No se pudo guardar copia de la foto en la galería', backupError);
+        }
+      }
     } catch (error) {
       console.error('No se pudo guardar la foto del recibo', error);
       Alert.alert('No se pudo guardar la foto', 'Intenta de nuevo.');
