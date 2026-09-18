@@ -22,6 +22,7 @@ Todos los datos viven **únicamente en SQLite local, en tu teléfono** — no ha
 - Si **desinstalas** la app (o pierdes el teléfono), pierdes los datos. Actualizar la app instalando un nuevo `.apk` **sin desinstalar primero** sí conserva los datos — ver "Actualizar la app instalada" más abajo.
 - El respaldo es manual: el botón **"Exportar"** (ícono de descarga) en Gastos y en Presupuesto genera un CSV que puedes compartir a Drive, correo, etc.
 - El botón **"Importar"** (ícono de documento, junto a "Exportar") lee ese mismo CSV y vuelve a crear los registros — es la forma de recuperar los datos si alguna vez se pierde la base local. Si una fila trae una categoría que ya no existe, el gasto se guarda en "Otros" conservando el nombre original al inicio de la nota, para no perder esa información. Importar el mismo CSV dos veces duplica los registros — está pensado como recuperación puntual, no como sincronización.
+- **El CSV no incluye las fotos de los recibos.** Cuando tomas una foto con la cámara desde la app, también se guarda una copia en la Galería del teléfono (no cuando eliges una que ya existía ahí) — así, si tu teléfono ya respalda la galería (Google Fotos, etc.), la foto queda protegida por ese lado. Si desinstalas la app sin ese respaldo externo, las fotos se pierden igual que el resto de los datos.
 - Recomendación: exporta ambos CSV periódicamente (ej. cada semana) mientras dure la construcción.
 
 ### Actualizar la app instalada (`.apk`)
